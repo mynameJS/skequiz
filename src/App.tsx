@@ -1,7 +1,7 @@
-import './App.css';
+import Router from './router';
 
-function App() {
-  return <>메인페이지</>;
-}
+const App = () => {
+  return <Router />;
+};
 
 export default App;
