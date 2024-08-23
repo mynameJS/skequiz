@@ -1,0 +1,43 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  border: 10px solid black;
+  font-size: 16px;
+
+  .registerBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 500px;
+    height: 500px;
+    border: 1px solid black;
+    padding-top: 20px;
+
+    .inputBox {
+      border: 1px solid black;
+      width: 65%;
+      height: 40px;
+      padding: 5px;
+    }
+
+    .playButton {
+      width: 65%;
+      height: 40px;
+      border: 1px solid black;
+      font-size: 25px;
+      background-color: greenyellow;
+    }
+
+    .CreateRoomButton {
+      width: 65%;
+      height: 40px;
+      border: 1px solid black;
+      font-size: 25px;
+      background-color: burlywood;
+    }
+  }
+}

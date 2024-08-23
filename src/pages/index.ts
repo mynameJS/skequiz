@@ -1,3 +1,5 @@
 import Root from './Root';
+import Landing from './landing/landing';
+import SketchRoom from './sketchRoom/sketchRoom';
 
-export { Root };
+export { Root, Landing, SketchRoom };

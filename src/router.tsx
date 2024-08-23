@@ -5,7 +5,10 @@ const Router = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Page.Root />} />
+        <Route path="/" element={<Page.Root />}>
+          <Route index element={<Page.Landing />} />
+          <Route path="/sketchRoom" element={<Page.SketchRoom />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

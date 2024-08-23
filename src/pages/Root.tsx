@@ -1,5 +1,7 @@
+import { Outlet } from 'react-router-dom';
+
 const Root = () => {
-  return <>루트페이지입니다.</>;
+  return <Outlet />;
 };
 
 export default Root;
