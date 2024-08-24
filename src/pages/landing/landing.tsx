@@ -4,10 +4,13 @@ import useNavigateClick from '../../hooks/useNavigateClick';
 import { createRandomNickName } from '../../utils/createRandomNickName';
 import { registerUserData } from '../../services/userService';
 import { userDataType } from '../../types/user/interface';
+import { userStore } from '../../store/userStore';
 
 const Landing = () => {
   const [userData, setUserData] = useState<userDataType>({ nickName: '' });
   const navigateTo = useNavigateClick();
+
+  const updateCurrentUserNickName = userStore(state => state.updateUserNickName);
 
   const handleUserNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newUserData = {
@@ -23,9 +26,10 @@ const Landing = () => {
     };
     setUserData(newUserData);
   };
-  // 유저 등록 후 스케치룸 이동
-  const handlePlayButtonClick = () => {
-    registerUserData(userData);
+  // 유저 정보 db 등록, 전역변수 업데이트 후 스케치룸 이동
+  const handlePlayButtonClick = async () => {
+    await registerUserData(userData);
+    updateCurrentUserNickName(userData.nickName);
     navigateTo('/sketchRoom');
   };
 
