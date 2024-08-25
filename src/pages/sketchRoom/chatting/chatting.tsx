@@ -6,11 +6,17 @@ interface ChattingProps {
 }
 
 const Chatting = ({ nickName, message }: ChattingProps) => {
+  const isSystemMessage = nickName === '시스템메세지';
+
   return (
     <div>
-      <p>
-        {nickName} : {message}
-      </p>
+      {isSystemMessage ? (
+        <p className={styles.systemMessage}>{message}</p>
+      ) : (
+        <p>
+          {nickName} : {message}
+        </p>
+      )}
     </div>
   );
 };
