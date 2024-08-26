@@ -7,6 +7,7 @@ import { MessageListTuple } from '../../types/chatting/type';
 import { userStore } from '../../store/userStore';
 import { userDataType } from '../../types/user/interface';
 import useRoomData from './hook/useRoomData';
+import Drawing from './drawing/drawing';
 
 // 이거 nickName이 '' 로 초기화상태일떄 스케치룸 입장시 (루트페이지 안거치고) 루트페이지로 리다이렉트되는 로직 추가해야됨
 
@@ -48,7 +49,9 @@ const SketchRoom = () => {
             <Participants key={index} nickName={nickName} />
           ))}
         </div>
-        <div className={styles.canvas}>드로잉영역</div>
+        <div className={styles.canvas}>
+          <Drawing />
+        </div>
         <div className={styles.chattingBox}>
           <div className={styles.chatting}>
             {messageList.map(([id, chatData]) => (
