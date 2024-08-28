@@ -2,10 +2,10 @@ import styles from './sketchRoom.module.scss';
 import { useState } from 'react';
 import Chatting from './chatting/chatting';
 import Participants from './participants/participants';
-import { sendChattingMessage } from '../../services/chattingService';
+import { sendChattingMessage } from '../../services/sketchRoomService';
 import { MessageListTuple } from '../../types/chatting/type';
 import { userStore } from '../../store/userStore';
-import { userDataType } from '../../types/user/interface';
+import { UserDataType } from '../../types/user/interface';
 import useRoomData from './hook/useRoomData';
 import Drawing from './drawing/drawing';
 
@@ -14,7 +14,8 @@ import Drawing from './drawing/drawing';
 const SketchRoom = () => {
   const [message, setMessage] = useState('');
   const [messageList, setMessageList] = useState<MessageListTuple[]>([]);
-  const [participantList, setParticipantList] = useState<userDataType[]>([]);
+  const [participantList, setParticipantList] = useState<UserDataType[]>([]);
+  const [isMyTurn, setIsMyTurn] = useState(false);
 
   const currentUserNickName = userStore(state => state.nickName);
 
@@ -29,7 +30,7 @@ const SketchRoom = () => {
     setMessageList(newMessageList);
   };
 
-  const updateParticipantList = (newParticipantList: userDataType[]) => {
+  const updateParticipantList = (newParticipantList: UserDataType[]) => {
     setParticipantList(newParticipantList);
   };
 
@@ -40,7 +41,9 @@ const SketchRoom = () => {
   return (
     <div className={styles.container}>
       <div className={styles.logoBox}>로고</div>
-      <div className={styles.header}>헤드라인</div>
+      <div className={styles.header}>
+        헤드라인 <button onClick={() => setIsMyTurn(!isMyTurn)}>내 턴</button>
+      </div>
       <div className={styles.playArea}>
         <div className={styles.participants}>
           {/* 일단 임시로 key는 인덱스 */}
@@ -50,7 +53,7 @@ const SketchRoom = () => {
           ))}
         </div>
         <div className={styles.canvas}>
-          <Drawing />
+          <Drawing isMyTurn={isMyTurn} />
         </div>
         <div className={styles.chattingBox}>
           <div className={styles.chatting}>
