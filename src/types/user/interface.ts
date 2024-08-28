@@ -1,3 +1,3 @@
-export interface userDataType {
+export interface UserDataType {
   nickName: string;
 }

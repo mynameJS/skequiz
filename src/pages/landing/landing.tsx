@@ -3,11 +3,11 @@ import { useState } from 'react';
 import useNavigateClick from '../../hooks/useNavigateClick';
 import { createRandomNickName } from '../../utils/createRandomNickName';
 import { registerUserData } from '../../services/userService';
-import { userDataType } from '../../types/user/interface';
+import { UserDataType } from '../../types/user/interface';
 import { userStore } from '../../store/userStore';
 
 const Landing = () => {
-  const [userData, setUserData] = useState<userDataType>({ nickName: '' });
+  const [userData, setUserData] = useState<UserDataType>({ nickName: '' });
   const navigateTo = useNavigateClick();
 
   const updateCurrentUserNickName = userStore(state => state.updateUserNickName);

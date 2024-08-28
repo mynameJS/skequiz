@@ -5,14 +5,14 @@ import {
   getParticipantsData,
   joinParticipant,
   leaveParticipant,
-} from '../../../services/chattingService';
+} from '../../../services/sketchRoomService';
 import { MessageListTuple } from '../../../types/chatting/type';
-import { userDataType } from '../../../types/user/interface';
+import { UserDataType } from '../../../types/user/interface';
 
 const useRoomData = (
   currentUserNickName: string,
   updateMessageList: (messages: MessageListTuple[]) => void,
-  updateParticipantList: (participants: userDataType[]) => void
+  updateParticipantList: (participants: UserDataType[]) => void
 ) => {
   useEffect(() => {
     const fetchRoomData = async () => {

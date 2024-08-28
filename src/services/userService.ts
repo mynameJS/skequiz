@@ -1,10 +1,10 @@
 import { doc, collection, addDoc, getDoc } from 'firebase/firestore';
 import { fireStoreDB } from '../config/firebase';
-import { userDataType } from '../types/user/interface';
+import { UserDataType } from '../types/user/interface';
 
 // 아마 roomId 별로 참여자리스트만 관리할거라 유저데이터를 따로 저장안할거긴한데
 // 일단 보류
-const registerUserData = async (userData: userDataType) => {
+const registerUserData = async (userData: UserDataType) => {
   try {
     await addDoc(collection(fireStoreDB, 'users'), userData);
   } catch (error) {

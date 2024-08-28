@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import { userDataType } from '../types/user/interface';
+import { UserDataType } from '../types/user/interface';
 
 interface UserActions {
-  updateUserNickName: (nickName: userDataType['nickName']) => void;
+  updateUserNickName: (nickName: UserDataType['nickName']) => void;
 }
 
-const userStore = create<userDataType & UserActions>(set => ({
+const userStore = create<UserDataType & UserActions>(set => ({
   nickName: '',
   updateUserNickName: nickName => set(() => ({ nickName: nickName })),
 }));
