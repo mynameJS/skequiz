@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
-import useSocketDrawing from '../hook/useSocketDrawing';
-import useInitCanvas from '../hook/useInitCanvas';
-import useResizeCanvas from '../hook/useResizeCanvas';
-import styles from './drawing.module.scss';
+import useSocketDrawing from '../../hook/useSocketDrawing';
+import useInitCanvas from '../../hook/useInitCanvas';
+import useResizeCanvas from '../../hook/useResizeCanvas';
+import styles from './Drawing.module.scss';
 import io from 'socket.io-client';
 
 interface DrawingProps {

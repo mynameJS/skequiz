@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { createChattingRoom, getExistingRoomData } from '../../../services/sketchRoomService';
-import { userStore } from '../../../store/userStore';
-import createShortUniqueId from '../../../utils/createShortUniqueId';
-import useNavigateClick from '../../../hooks/useNavigateClick';
-import styles from './searchingRoom.module.scss';
+import { createChattingRoom, getExistingRoomData } from '../../../../services/sketchRoomService';
+import { userStore } from '../../../../store/userStore';
+import createShortUniqueId from '../../../../utils/createShortUniqueId';
+import useNavigateClick from '../../../../hooks/useNavigateClick';
+import styles from './SearchingRoom.module.scss';
 
 const SearchingRoom = () => {
   const [openRoomList, setOpenRoomList] = useState<string[] | string>([]);

@@ -1,16 +1,14 @@
-import styles from './sketchRoom.module.scss';
 import { useState, useEffect } from 'react';
-import Chatting from './chatting/chatting';
-import Participants from './participants/participants';
-import { sendChattingMessage } from '../../services/sketchRoomService';
-import { MessageListTuple } from '../../types/chatting/type';
-import { userStore } from '../../store/userStore';
-import { UserDataType } from '../../types/user/interface';
 import useNavigateClick from '../../hooks/useNavigateClick';
 import useRoomData from './hook/useRoomData';
-import Drawing from './drawing/drawing';
-
-// 이거 nickName이 '' 로 초기화상태일떄 스케치룸 입장시 (루트페이지 안거치고) 루트페이지로 리다이렉트되는 로직 추가해야됨
+import { userStore } from '../../store/userStore';
+import { sendChattingMessage } from '../../services/sketchRoomService';
+import { MessageListTuple } from '../../types/chatting/type';
+import { UserDataType } from '../../types/user/interface';
+import Drawing from './components/drawing/drawing';
+import Participants from './components/participants/participants';
+import ChattingBox from './components/chatting/ChattingBox';
+import styles from './SketchRoom.module.scss';
 
 const SketchRoom = () => {
   const [message, setMessage] = useState('');
@@ -25,7 +23,8 @@ const SketchRoom = () => {
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value);
 
-  const handleSendButtonClick = () => {
+  const handleSendButtonClick = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     sendChattingMessage(currentRoomId, { nickName: currentUserNickName, message: message });
     setMessage('');
   };
@@ -65,17 +64,12 @@ const SketchRoom = () => {
         <div className={styles.canvas}>
           <Drawing isMyTurn={isMyTurn} />
         </div>
-        <div className={styles.chattingBox}>
-          <div className={styles.chatting}>
-            {messageList.map(([id, chatData]) => (
-              <Chatting key={id} nickName={chatData.nickName} message={chatData.message} />
-            ))}
-          </div>
-          <div className={styles.chattingInput}>
-            <input placeholder="Type your guess here.." value={message} onChange={handleMessageChange} />
-            <button onClick={handleSendButtonClick}>Send</button>
-          </div>
-        </div>
+        <ChattingBox
+          message={message}
+          messageList={messageList}
+          onChange={handleMessageChange}
+          onSubmit={handleSendButtonClick}
+        />
       </div>
     </div>
   );

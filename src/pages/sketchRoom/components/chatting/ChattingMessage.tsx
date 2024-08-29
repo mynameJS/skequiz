@@ -1,11 +1,11 @@
-import styles from './chatting.module.scss';
+import styles from './ChattingMessage.module.scss';
 
-interface ChattingProps {
+interface ChattingMessageProps {
   nickName: string;
   message: string;
 }
 
-const Chatting = ({ nickName, message }: ChattingProps) => {
+const ChattingMessage = ({ nickName, message }: ChattingMessageProps) => {
   const isSystemMessage = nickName === '시스템메세지';
 
   return (
@@ -21,4 +21,4 @@ const Chatting = ({ nickName, message }: ChattingProps) => {
   );
 };
 
-export default Chatting;
+export default ChattingMessage;

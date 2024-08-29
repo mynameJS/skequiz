@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { createRandomNickName } from '../../utils/createRandomNickName';
 import { userStore } from '../../store/userStore';
-// import useNavigateClick from '../../hooks/useNavigateClick';
-import SearchingRoom from './searchingRoom/searchingRoom';
+import SearchingRoom from './components/searchingRoom/searchingRoom';
 import styles from './landing.module.scss';
 
 const Landing = () => {
   const [userNickName, setUserNickName] = useState<string>('');
   const [isSearching, setIsSearching] = useState<boolean>(false);
-  // const navigateTo = useNavigateClick();
 
   const updateCurrentUserNickName = userStore(state => state.updateUserNickName);
 

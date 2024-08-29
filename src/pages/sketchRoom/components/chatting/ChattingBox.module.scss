@@ -1,0 +1,14 @@
+.chattingBox {
+  display: flex;
+  flex-direction: column;
+  width: 25%;
+  padding: 5px;
+  gap: 3px;
+
+  .chatting {
+    width: 100%;
+    height: 95%;
+    border: 1px solid black;
+    overflow: auto;
+  }
+}

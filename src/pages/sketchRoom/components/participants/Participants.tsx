@@ -1,11 +1,11 @@
-import styles from './participants.module.scss';
+import styles from './Participants.module.scss';
 
 interface ParticipantsProps {
   nickName: string;
 }
 
 const Participants = ({ nickName }: ParticipantsProps) => {
-  return <div>{nickName}</div>;
+  return <div className={styles.nickName}>{nickName}</div>;
 };
 
 export default Participants;
