@@ -1,16 +1,18 @@
 import { create } from 'zustand';
 import { UserDataType } from '../types/user/interface';
+import createShortUniqueId from '../utils/createShortUniqueId';
 
 interface UserActions {
-  updateUserId: (id: UserDataType['id']) => void;
+  updateRoomId: (roomId: UserDataType['roomId']) => void;
   updateUserNickName: (nickName: UserDataType['nickName']) => void;
 }
 
 const userStore = create<UserDataType & UserActions>(set => ({
-  id: '',
+  roomId: '',
+  id: createShortUniqueId(),
   nickName: '',
   updateUserNickName: nickName => set(() => ({ nickName: nickName })),
-  updateUserId: id => set(() => ({ id: id })),
+  updateRoomId: roomId => set(() => ({ roomId: roomId })),
 }));
 
 export { userStore };

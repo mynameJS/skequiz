@@ -2,38 +2,25 @@ import styles from './landing.module.scss';
 import { useState } from 'react';
 import useNavigateClick from '../../hooks/useNavigateClick';
 import { createRandomNickName } from '../../utils/createRandomNickName';
-import { registerUserData } from '../../services/userService';
-import { UserDataType } from '../../types/user/interface';
 import { userStore } from '../../store/userStore';
-import { v4 as uuidV4 } from 'uuid';
 
 const Landing = () => {
-  const [userData, setUserData] = useState<UserDataType>({ id: uuidV4(), nickName: '' });
+  const [userNickName, setUserNickName] = useState<string>('');
   const navigateTo = useNavigateClick();
 
-  const updateCurrentUserId = userStore(state => state.updateUserId);
   const updateCurrentUserNickName = userStore(state => state.updateUserNickName);
 
-  const handleUserNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newUserData = {
-      ...userData,
-      nickName: e.target.value,
-    };
-    setUserData(newUserData);
+  const handleUserNickNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserNickName(e.target.value);
   };
+
   const handleCreateRanDomNickNameClick = () => {
-    const newUserData = {
-      ...userData,
-      nickName: createRandomNickName(),
-    };
-    setUserData(newUserData);
+    setUserNickName(createRandomNickName());
   };
-  // 유저 정보 db 등록, 전역변수 업데이트 후 스케치룸 이동
+  // 전역변수 업데이트 후 입장 전 서칭룸으로 이동
   const handlePlayButtonClick = async () => {
-    await registerUserData(userData);
-    updateCurrentUserNickName(userData.nickName);
-    updateCurrentUserId(userData.id);
-    navigateTo('/sketchRoom');
+    updateCurrentUserNickName(userNickName);
+    navigateTo('/searchingRoom');
   };
 
   return (
@@ -41,7 +28,7 @@ const Landing = () => {
       <div className={styles.registerBox}>
         <div className={styles.logoBox}>Logo</div>
         <div className={styles.inputBox}>
-          <input placeholder="Enter Your NickName" value={userData.nickName} onChange={handleUserNameChange} />
+          <input placeholder="Enter Your NickName" value={userNickName} onChange={handleUserNickNameChange} />
           <button onClick={handleCreateRanDomNickNameClick}>🎲</button>
         </div>
         <button className={styles.playButton} onClick={handlePlayButtonClick}>

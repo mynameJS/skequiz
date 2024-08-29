@@ -17,13 +17,14 @@ const SketchRoom = () => {
   const [participantList, setParticipantList] = useState<UserDataType[]>([]);
   const [isMyTurn, setIsMyTurn] = useState(false);
 
+  const currentRoomId = userStore(state => state.roomId) ?? '';
   const currentUserId = userStore(state => state.id);
   const currentUserNickName = userStore(state => state.nickName);
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value);
 
   const handleSendButtonClick = () => {
-    sendChattingMessage({ nickName: currentUserNickName, message: message });
+    sendChattingMessage(currentRoomId, { nickName: currentUserNickName, message: message });
     setMessage('');
   };
 
@@ -35,7 +36,7 @@ const SketchRoom = () => {
     setParticipantList(newParticipantList);
   };
 
-  useRoomData(currentUserNickName, currentUserId, updateMessageList, updateParticipantList);
+  useRoomData(currentRoomId, currentUserNickName, currentUserId, updateMessageList, updateParticipantList);
 
   if (!messageList.length || !participantList.length) return null;
 

@@ -4,14 +4,14 @@ import { ChattingMessageData } from '../types/chatting/interface';
 import { MessageListTuple } from '../types/chatting/type';
 import { UserDataType } from '../types/user/interface';
 
-const testRoomId = '1';
-
 // 스케치룸 생성
+// 일단 테스트용으로 참여자 제한 2명으로 설정
 const createChattingRoom = async (roomId: string) => {
   try {
     const updates = {
       [`room/${roomId}/chatting`]: '',
       [`room/${roomId}/participants`]: '',
+      [`room/${roomId}/limit`]: 2,
     };
     await update(ref(realTimeDB), updates);
   } catch (error) {
@@ -23,18 +23,16 @@ const createChattingRoom = async (roomId: string) => {
   }
 };
 
-// createChattingRoom(testRoomId);
-
 // 참여자 추가
-const joinParticipant = async (userData: UserDataType) => {
+const joinParticipant = async (roomId: string, userData: UserDataType) => {
   const dbRef = ref(getDatabase());
   try {
-    const prevParticipantsRef = await get(child(dbRef, `room/${testRoomId}/participants`));
+    const prevParticipantsRef = await get(child(dbRef, `room/${roomId}/participants`));
     if (prevParticipantsRef.exists()) {
       const prevParticipantsList = prevParticipantsRef.val();
       const newParticipantsList = [...prevParticipantsList, userData];
       const updates: { [key: string]: UserDataType[] } = {};
-      updates[`/room/${testRoomId}/participants/`] = newParticipantsList;
+      updates[`/room/${roomId}/participants/`] = newParticipantsList;
       await update(ref(realTimeDB), updates);
     } else {
       console.log('No data available');
@@ -49,17 +47,17 @@ const joinParticipant = async (userData: UserDataType) => {
 };
 
 // 참여자 떠남
-const leaveParticipant = async (targetUserData: UserDataType) => {
+const leaveParticipant = async (roomId: string, targetUserData: UserDataType) => {
   const dbRef = ref(getDatabase());
   try {
-    const prevParticipantsRef = await get(child(dbRef, `room/${testRoomId}/participants`));
+    const prevParticipantsRef = await get(child(dbRef, `room/${roomId}/participants`));
     if (prevParticipantsRef.exists()) {
       const prevParticipantsList = prevParticipantsRef.val();
       const newParticipantsList = prevParticipantsList.filter(
         (userData: UserDataType) => userData.id !== targetUserData.id
       );
       const updates: { [key: string]: UserDataType[] } = {};
-      updates[`/room/${testRoomId}/participants/`] = newParticipantsList;
+      updates[`/room/${roomId}/participants/`] = newParticipantsList;
       await update(ref(realTimeDB), updates);
     } else {
       console.log('No data available');
@@ -74,10 +72,10 @@ const leaveParticipant = async (targetUserData: UserDataType) => {
 };
 
 // 채팅메세지 전송
-const sendChattingMessage = async (messageData: ChattingMessageData) => {
-  const newChattingKey = push(child(ref(realTimeDB), `room/${testRoomId}/chatting`)).key;
+const sendChattingMessage = async (roomId: string, messageData: ChattingMessageData) => {
+  const newChattingKey = push(child(ref(realTimeDB), `room/${roomId}/chatting`)).key;
   const updates: { [key: string]: ChattingMessageData } = {};
-  updates[`/room/${testRoomId}/chatting/${newChattingKey}`] = messageData;
+  updates[`/room/${roomId}/chatting/${newChattingKey}`] = messageData;
 
   try {
     await update(ref(realTimeDB), updates);
@@ -91,8 +89,8 @@ const sendChattingMessage = async (messageData: ChattingMessageData) => {
 };
 
 // 채팅 내역 실시간 업데이트
-const getChattingData = (onUpdateData: (messageList: MessageListTuple[]) => void) => {
-  const chattingDataRef = ref(realTimeDB, `room/${testRoomId}/chatting`);
+const getChattingData = (roomId: string, onUpdateData: (messageList: MessageListTuple[]) => void) => {
+  const chattingDataRef = ref(realTimeDB, `room/${roomId}/chatting`);
   onValue(chattingDataRef, snapshot => {
     const data = snapshot.val();
     onUpdateData(Object.entries(data));
@@ -100,11 +98,30 @@ const getChattingData = (onUpdateData: (messageList: MessageListTuple[]) => void
 };
 
 // 채팅 참여자 실시간 업데이트
-const getParticipantsData = (onUpdateData: (userData: UserDataType[]) => void) => {
-  const participantsDataRef = ref(realTimeDB, `room/${testRoomId}/participants`);
+const getParticipantsData = (roomId: string, onUpdateData: (userData: UserDataType[]) => void) => {
+  const participantsDataRef = ref(realTimeDB, `room/${roomId}/participants`);
   onValue(participantsDataRef, snapshot => {
     const data = snapshot.val();
     onUpdateData(data);
+  });
+};
+
+// 현재 플레이중인 Room 중에 입장가능한 Room id
+const getExistingRoomData = (onUpdateData: (roomIdList: string[] | string) => void) => {
+  const currentExistingRoomDataRef = ref(realTimeDB, `room`);
+  onValue(currentExistingRoomDataRef, snapshot => {
+    const data = snapshot.val();
+    const dataConvertedArr = Object.entries(data);
+    const openRoom = dataConvertedArr
+      .filter(roomData => {
+        if (roomData[1].participants && roomData[1].participants.length < roomData[1].limit) return true;
+      })
+      .map(roomData => roomData[0]);
+    if (openRoom.length === 0) {
+      onUpdateData('create');
+    } else {
+      onUpdateData(openRoom);
+    }
   });
 };
 
@@ -115,4 +132,5 @@ export {
   sendChattingMessage,
   getChattingData,
   getParticipantsData,
+  getExistingRoomData,
 };

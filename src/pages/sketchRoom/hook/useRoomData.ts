@@ -10,6 +10,7 @@ import { MessageListTuple } from '../../../types/chatting/type';
 import { UserDataType } from '../../../types/user/interface';
 
 const useRoomData = (
+  currentRoomId: string,
   currentUserNickName: string,
   currentUserId: string,
   updateMessageList: (messages: MessageListTuple[]) => void,
@@ -17,10 +18,13 @@ const useRoomData = (
 ) => {
   useEffect(() => {
     const fetchRoomData = async () => {
-      await sendChattingMessage({ nickName: '시스템메세지', message: `${currentUserNickName} 님이 입장하였습니다.` });
-      await joinParticipant({ id: currentUserId, nickName: currentUserNickName });
-      getChattingData(updateMessageList);
-      getParticipantsData(updateParticipantList);
+      await sendChattingMessage(currentRoomId, {
+        nickName: '시스템메세지',
+        message: `${currentUserNickName} 님이 입장하였습니다.`,
+      });
+      await joinParticipant(currentRoomId, { id: currentUserId, nickName: currentUserNickName });
+      getChattingData(currentRoomId, updateMessageList);
+      getParticipantsData(currentRoomId, updateParticipantList);
     };
 
     fetchRoomData();
@@ -33,8 +37,11 @@ const useRoomData = (
     const handleUnload = async () => {
       try {
         await Promise.all([
-          sendChattingMessage({ nickName: '시스템메세지', message: `${currentUserNickName} 님이 퇴장하였습니다.` }),
-          leaveParticipant({ id: currentUserId, nickName: currentUserNickName }),
+          sendChattingMessage(currentRoomId, {
+            nickName: '시스템메세지',
+            message: `${currentUserNickName} 님이 퇴장하였습니다.`,
+          }),
+          leaveParticipant(currentRoomId, { id: currentUserId, nickName: currentUserNickName }),
         ]);
       } catch (error) {
         console.error('Error during unload:', error);
@@ -46,8 +53,11 @@ const useRoomData = (
 
     return () => {
       const sendLeaveMessage = async () => {
-        await sendChattingMessage({ nickName: '시스템메세지', message: `${currentUserNickName} 님이 퇴장하였습니다.` });
-        await leaveParticipant({ id: currentUserId, nickName: currentUserNickName });
+        await sendChattingMessage(currentRoomId, {
+          nickName: '시스템메세지',
+          message: `${currentUserNickName} 님이 퇴장하였습니다.`,
+        });
+        await leaveParticipant(currentRoomId, { id: currentUserId, nickName: currentUserNickName });
       };
       sendLeaveMessage();
 
