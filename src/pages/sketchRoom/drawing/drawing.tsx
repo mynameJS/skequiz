@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useState } from 'react';
 import useSocketDrawing from '../hook/useSocketDrawing';
 import useInitCanvas from '../hook/useInitCanvas';
 import useResizeCanvas from '../hook/useResizeCanvas';
@@ -9,13 +9,13 @@ interface DrawingProps {
   isMyTurn: boolean;
 }
 
-const socket = io(import.meta.env.VITE_NODE_SOCKET_URL);
-
 const Drawing = ({ isMyTurn }: DrawingProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
+
+  const socket = io(import.meta.env.VITE_NODE_SOCKET_URL);
 
   useInitCanvas(canvasRef, setContext);
   useResizeCanvas(canvasRef, containerRef);

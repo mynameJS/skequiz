@@ -17,6 +17,7 @@ const SketchRoom = () => {
   const [participantList, setParticipantList] = useState<UserDataType[]>([]);
   const [isMyTurn, setIsMyTurn] = useState(false);
 
+  const currentUserId = userStore(state => state.id);
   const currentUserNickName = userStore(state => state.nickName);
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value);
@@ -34,7 +35,7 @@ const SketchRoom = () => {
     setParticipantList(newParticipantList);
   };
 
-  useRoomData(currentUserNickName, updateMessageList, updateParticipantList);
+  useRoomData(currentUserNickName, currentUserId, updateMessageList, updateParticipantList);
 
   if (!messageList.length || !participantList.length) return null;
 
@@ -46,10 +47,9 @@ const SketchRoom = () => {
       </div>
       <div className={styles.playArea}>
         <div className={styles.participants}>
-          {/* 일단 임시로 key는 인덱스 */}
           현재 참여 인원
-          {participantList.map(({ nickName }, index) => (
-            <Participants key={index} nickName={nickName} />
+          {participantList.map(({ id, nickName }) => (
+            <Participants key={id} nickName={nickName} />
           ))}
         </div>
         <div className={styles.canvas}>

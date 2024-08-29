@@ -4,7 +4,7 @@ import { ChattingMessageData } from '../types/chatting/interface';
 import { MessageListTuple } from '../types/chatting/type';
 import { UserDataType } from '../types/user/interface';
 
-const testRoomId = '28';
+const testRoomId = '1';
 
 // 스케치룸 생성
 const createChattingRoom = async (roomId: string) => {
@@ -49,7 +49,6 @@ const joinParticipant = async (userData: UserDataType) => {
 };
 
 // 참여자 떠남
-// 이름이 똑같으면 같이 팅기니까 나중에 고유 id로 식별해야될듯
 const leaveParticipant = async (targetUserData: UserDataType) => {
   const dbRef = ref(getDatabase());
   try {
@@ -57,7 +56,7 @@ const leaveParticipant = async (targetUserData: UserDataType) => {
     if (prevParticipantsRef.exists()) {
       const prevParticipantsList = prevParticipantsRef.val();
       const newParticipantsList = prevParticipantsList.filter(
-        (userData: UserDataType) => userData.nickName !== targetUserData.nickName
+        (userData: UserDataType) => userData.id !== targetUserData.id
       );
       const updates: { [key: string]: UserDataType[] } = {};
       updates[`/room/${testRoomId}/participants/`] = newParticipantsList;

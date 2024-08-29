@@ -5,11 +5,13 @@ import { createRandomNickName } from '../../utils/createRandomNickName';
 import { registerUserData } from '../../services/userService';
 import { UserDataType } from '../../types/user/interface';
 import { userStore } from '../../store/userStore';
+import { v4 as uuidV4 } from 'uuid';
 
 const Landing = () => {
-  const [userData, setUserData] = useState<UserDataType>({ nickName: '' });
+  const [userData, setUserData] = useState<UserDataType>({ id: uuidV4(), nickName: '' });
   const navigateTo = useNavigateClick();
 
+  const updateCurrentUserId = userStore(state => state.updateUserId);
   const updateCurrentUserNickName = userStore(state => state.updateUserNickName);
 
   const handleUserNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,6 +32,7 @@ const Landing = () => {
   const handlePlayButtonClick = async () => {
     await registerUserData(userData);
     updateCurrentUserNickName(userData.nickName);
+    updateCurrentUserId(userData.id);
     navigateTo('/sketchRoom');
   };
 

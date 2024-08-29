@@ -11,13 +11,14 @@ import { UserDataType } from '../../../types/user/interface';
 
 const useRoomData = (
   currentUserNickName: string,
+  currentUserId: string,
   updateMessageList: (messages: MessageListTuple[]) => void,
   updateParticipantList: (participants: UserDataType[]) => void
 ) => {
   useEffect(() => {
     const fetchRoomData = async () => {
       await sendChattingMessage({ nickName: '시스템메세지', message: `${currentUserNickName} 님이 입장하였습니다.` });
-      await joinParticipant({ nickName: currentUserNickName });
+      await joinParticipant({ id: currentUserId, nickName: currentUserNickName });
       getChattingData(updateMessageList);
       getParticipantsData(updateParticipantList);
     };
@@ -33,7 +34,7 @@ const useRoomData = (
       try {
         await Promise.all([
           sendChattingMessage({ nickName: '시스템메세지', message: `${currentUserNickName} 님이 퇴장하였습니다.` }),
-          leaveParticipant({ nickName: currentUserNickName }),
+          leaveParticipant({ id: currentUserId, nickName: currentUserNickName }),
         ]);
       } catch (error) {
         console.error('Error during unload:', error);
@@ -46,7 +47,7 @@ const useRoomData = (
     return () => {
       const sendLeaveMessage = async () => {
         await sendChattingMessage({ nickName: '시스템메세지', message: `${currentUserNickName} 님이 퇴장하였습니다.` });
-        await leaveParticipant({ nickName: currentUserNickName });
+        await leaveParticipant({ id: currentUserId, nickName: currentUserNickName });
       };
       sendLeaveMessage();
 
