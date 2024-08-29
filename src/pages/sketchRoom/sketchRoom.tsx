@@ -1,11 +1,12 @@
 import styles from './sketchRoom.module.scss';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Chatting from './chatting/chatting';
 import Participants from './participants/participants';
 import { sendChattingMessage } from '../../services/sketchRoomService';
 import { MessageListTuple } from '../../types/chatting/type';
 import { userStore } from '../../store/userStore';
 import { UserDataType } from '../../types/user/interface';
+import useNavigateClick from '../../hooks/useNavigateClick';
 import useRoomData from './hook/useRoomData';
 import Drawing from './drawing/drawing';
 
@@ -16,6 +17,7 @@ const SketchRoom = () => {
   const [messageList, setMessageList] = useState<MessageListTuple[]>([]);
   const [participantList, setParticipantList] = useState<UserDataType[]>([]);
   const [isMyTurn, setIsMyTurn] = useState(false);
+  const navigateTo = useNavigateClick();
 
   const currentRoomId = userStore(state => state.roomId) ?? '';
   const currentUserId = userStore(state => state.id);
@@ -35,6 +37,13 @@ const SketchRoom = () => {
   const updateParticipantList = (newParticipantList: UserDataType[]) => {
     setParticipantList(newParticipantList);
   };
+
+  useEffect(() => {
+    // 새로고침 시 전역상태로 관리중인 유저정보가 초기화되고 바로 스케치룸에서 로비로 리다이렉트처리
+    if (currentUserNickName === '') {
+      navigateTo('/');
+    }
+  }, [currentUserNickName, navigateTo]);
 
   useRoomData(currentRoomId, currentUserNickName, currentUserId, updateMessageList, updateParticipantList);
 

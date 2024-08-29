@@ -1,12 +1,14 @@
-import styles from './landing.module.scss';
 import { useState } from 'react';
-import useNavigateClick from '../../hooks/useNavigateClick';
 import { createRandomNickName } from '../../utils/createRandomNickName';
 import { userStore } from '../../store/userStore';
+// import useNavigateClick from '../../hooks/useNavigateClick';
+import SearchingRoom from './searchingRoom/searchingRoom';
+import styles from './landing.module.scss';
 
 const Landing = () => {
   const [userNickName, setUserNickName] = useState<string>('');
-  const navigateTo = useNavigateClick();
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  // const navigateTo = useNavigateClick();
 
   const updateCurrentUserNickName = userStore(state => state.updateUserNickName);
 
@@ -17,10 +19,17 @@ const Landing = () => {
   const handleCreateRanDomNickNameClick = () => {
     setUserNickName(createRandomNickName());
   };
+
   // 전역변수 업데이트 후 입장 전 서칭룸으로 이동
-  const handlePlayButtonClick = async () => {
-    updateCurrentUserNickName(userNickName);
-    navigateTo('/searchingRoom');
+  const handlePlayButtonClick = () => {
+    // 닉네임을 입력하지 않고 플레이버튼 클릭 시 랜덤닉네임 부여
+    if (userNickName === '') {
+      const randomNickName = createRandomNickName();
+      updateCurrentUserNickName(randomNickName);
+    } else {
+      updateCurrentUserNickName(userNickName);
+    }
+    setIsSearching(prevValue => !prevValue);
   };
 
   return (
@@ -35,6 +44,7 @@ const Landing = () => {
           Play
         </button>
         <button className={styles.CreateRoomButton}>Create Custom Room</button>
+        {isSearching && <SearchingRoom />}
       </div>
     </div>
   );

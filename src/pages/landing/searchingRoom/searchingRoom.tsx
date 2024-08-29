@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
-import { createChattingRoom, getExistingRoomData } from '../../services/sketchRoomService';
-import { userStore } from '../../store/userStore';
-import createShortUniqueId from '../../utils/createShortUniqueId';
-import useNavigateClick from '../../hooks/useNavigateClick';
+import { createChattingRoom, getExistingRoomData } from '../../../services/sketchRoomService';
+import { userStore } from '../../../store/userStore';
+import createShortUniqueId from '../../../utils/createShortUniqueId';
+import useNavigateClick from '../../../hooks/useNavigateClick';
 import styles from './searchingRoom.module.scss';
 
 const SearchingRoom = () => {
   const [openRoomList, setOpenRoomList] = useState<string[] | string>([]);
-  console.log(openRoomList);
   const navigateTo = useNavigateClick();
 
   const updateCurrentRoomId = userStore(state => state.updateRoomId);
@@ -39,7 +38,7 @@ const SearchingRoom = () => {
     };
     selectingRoom();
   }, [openRoomList, navigateTo, updateCurrentRoomId]);
-  return <div className={styles.container}>플레이어 찾는중...</div>;
+  return <div className={styles.container}>플레이어 찾는 중...</div>;
 };
 
 export default SearchingRoom;
