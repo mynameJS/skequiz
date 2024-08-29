@@ -4,7 +4,14 @@ const socketIo = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+  cors: {
+    origin: ['http://localhost:5173'],
+    methods: ['GET', 'POST'],
+    allowedHeaders: [],
+    credentials: false,
+  },
+});
 
 const PORT = process.env.PORT || 3000;
 
