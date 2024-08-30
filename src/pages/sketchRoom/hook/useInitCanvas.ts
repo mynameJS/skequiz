@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 
 interface CanvasOptions {
   lineWidth?: number;
-  lineCap?: CanvasLineCap;
   strokeStyle?: string;
 }
 
@@ -17,7 +16,7 @@ const useInitCanvas = (
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.lineWidth = options.lineWidth ?? 2;
-        ctx.lineCap = options.lineCap ?? 'round';
+        ctx.lineCap = 'round';
         ctx.strokeStyle = options.strokeStyle ?? 'black';
         setContext(ctx);
       }

@@ -39,10 +39,27 @@ const useSocketDrawing = ({ socket, context, canvasRef, isMyTurn }: UseSocketDra
       }
     });
 
+    // 캔버스 초기화 이벤트를 받으면 캔버스를 지움
+    socket.on('clearCanvas', () => {
+      const canvas = canvasRef.current;
+      if (canvas && context) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    });
+
+    // 색상 및 선 굵기 업데이트 이벤트를 받으면 옵션을 업데이트
+    socket.on('updateContextOption', newContextOption => {
+      if (context) {
+        context.lineWidth = newContextOption.lineWidth;
+        context.strokeStyle = newContextOption.strokeStyle;
+      }
+    });
+
     return () => {
       socket.off('startDrawing');
       socket.off('drawing');
       socket.off('stopDrawing');
+      socket.off('updateContextOption');
     };
   }, [isMyTurn, context, canvasRef, socket]);
 };

@@ -18,20 +18,30 @@ const PORT = process.env.PORT || 3000;
 io.on('connection', socket => {
   console.log('New client connected');
 
-  // 클라이언트가 그림을 그리기 시작할 때
+  // 그림을 그리기 시작할 때
   socket.on('startDrawing', () => {
     socket.broadcast.emit('startDrawing');
   });
 
-  // 클라이언트가 그림을 그릴 때마다 좌표 데이터를 받음
+  // 그림을 그릴 때마다 좌표 데이터를 받음
   socket.on('drawing', data => {
     // 다른 클라이언트에게 그림 데이터를 브로드캐스트
     socket.broadcast.emit('drawing', data);
   });
 
-  // 클라이언트가 그림을 멈출 때
+  // 그림을 멈출 때
   socket.on('stopDrawing', () => {
     socket.broadcast.emit('stopDrawing');
+  });
+
+  // 캔버스를 초기화할 때
+  socket.on('clearCanvas', () => {
+    socket.broadcast.emit('clearCanvas');
+  });
+
+  // 색상 및 선 굵기 업데이트 이벤트
+  socket.on('updateContextOption', newContextOption => {
+    socket.broadcast.emit('updateContextOption', newContextOption);
   });
 
   socket.on('disconnect', () => {

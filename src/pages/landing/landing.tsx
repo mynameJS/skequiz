@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { createRandomNickName } from '../../utils/createRandomNickName';
 import { userStore } from '../../store/userStore';
-import SearchingRoom from './components/searchingRoom/searchingRoom';
-import styles from './landing.module.scss';
+import SearchingRoom from './components/searchingRoom/SearchingRoom';
+import styles from './Landing.module.scss';
 
 const Landing = () => {
   const [userNickName, setUserNickName] = useState<string>('');

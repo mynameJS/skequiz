@@ -5,8 +5,8 @@ import { userStore } from '../../store/userStore';
 import { sendChattingMessage } from '../../services/sketchRoomService';
 import { MessageListTuple } from '../../types/chatting/type';
 import { UserDataType } from '../../types/user/interface';
-import Drawing from './components/drawing/drawing';
-import Participants from './components/participants/participants';
+import Drawing from './components/drawing/Drawing';
+import Participants from './components/participants/Participants';
 import ChattingBox from './components/chatting/ChattingBox';
 import styles from './SketchRoom.module.scss';
 
@@ -52,7 +52,7 @@ const SketchRoom = () => {
     <div className={styles.container}>
       <div className={styles.logoBox}>로고</div>
       <div className={styles.header}>
-        헤드라인 <button onClick={() => setIsMyTurn(!isMyTurn)}>내 턴</button>
+        <button onClick={() => setIsMyTurn(!isMyTurn)}>{isMyTurn ? '드로잉' : '왓칭'}</button>
       </div>
       <div className={styles.playArea}>
         <div className={styles.participants}>
