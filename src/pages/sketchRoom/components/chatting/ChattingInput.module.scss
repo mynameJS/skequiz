@@ -1,21 +1,26 @@
 .chattingInput {
   width: 100%;
-  height: 5%;
-  border: 1px solid black;
+  height: 35px;
+  // border: 1px solid rgba(18, 1, 1, 0);
+  border-radius: 8px;
 
   display: flex;
   justify-content: center;
   align-items: center;
 
+  padding: 1px;
+
   form {
     width: 100%;
     height: 100%;
     display: flex;
-    gap: 5px;
+    gap: 10px;
 
     input {
       width: 100%;
-      border: 1px solid black;
+      border: 1px solid rgba(0, 0, 0, 0.408);
+      border-radius: 5px;
+      padding: 3px;
     }
   }
 }

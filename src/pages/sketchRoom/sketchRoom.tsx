@@ -15,7 +15,6 @@ const SketchRoom = () => {
   const [message, setMessage] = useState('');
   const [messageList, setMessageList] = useState<MessageListTuple[]>([]);
   const [participantList, setParticipantList] = useState<UserDataType[]>([]);
-  const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(0);
   const [isMyTurn, setIsMyTurn] = useState(false);
   const navigateTo = useNavigateClick();
 
@@ -52,28 +51,39 @@ const SketchRoom = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.logoBox}>
-        <button onClick={() => setIsMyTurn(!isMyTurn)}>{isMyTurn ? '드로잉' : '왓칭'}</button>
-      </div>
-      <div className={styles.header}>
-        <GameTable participantsList={participantList} />
-      </div>
-      <div className={styles.playArea}>
-        <div className={styles.participants}>
-          현재 참여 인원
-          {participantList.map(({ id, nickName }) => (
-            <Participants key={id} nickName={nickName} />
-          ))}
+      <div className={styles.gameBoard}>
+        <div className={styles.logoBox}>
+          <p>
+            <span>S</span>
+            <span>K</span>
+            <span>E</span>
+            <span>Q</span>
+            <span>U</span>
+            <span>I</span>
+            <span>Z</span>
+            <span>🎨</span>
+          </p>
         </div>
-        <div className={styles.canvas}>
-          <Drawing isMyTurn={isMyTurn} />
+        <div className={styles.header}>
+          <button onClick={() => setIsMyTurn(!isMyTurn)}>{isMyTurn ? '드로잉' : '왓칭'}</button>
         </div>
-        <ChattingBox
-          message={message}
-          messageList={messageList}
-          onChange={handleMessageChange}
-          onSubmit={handleSendButtonClick}
-        />
+        <div className={styles.playArea}>
+          <div className={styles.participants}>
+            <p>현재 참여 인원</p>
+            {participantList.map(({ id, nickName }) => (
+              <Participants key={id} nickName={nickName} />
+            ))}
+          </div>
+          <div className={styles.canvas}>
+            <Drawing isMyTurn={isMyTurn} />
+          </div>
+          <ChattingBox
+            message={message}
+            messageList={messageList}
+            onChange={handleMessageChange}
+            onSubmit={handleSendButtonClick}
+          />
+        </div>
       </div>
     </div>
   );

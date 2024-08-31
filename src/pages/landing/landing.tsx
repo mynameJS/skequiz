@@ -34,9 +34,9 @@ const Landing = () => {
     <div className={styles.container}>
       <div className={styles.registerBox}>
         <div className={styles.logoBox}>SKEQUIZ</div>
-        <div className={styles.inputBox}>
+        <div className={styles.actionBox}>
           <div className={styles.inputName}>
-            <input placeholder="Enter your Nickname" value={userNickName} onChange={handleUserNickNameChange} />
+            <input placeholder="Type your nickname" value={userNickName} onChange={handleUserNickNameChange} />
             <button onClick={handleCreateRanDomNickNameClick}>🎲</button>
           </div>
           <div className={styles.gameButton}>

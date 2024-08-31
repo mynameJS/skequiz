@@ -13,7 +13,7 @@ const ChattingMessage = ({ nickName, message }: ChattingMessageProps) => {
       {isSystemMessage ? (
         <p className={styles.systemMessage}>{message}</p>
       ) : (
-        <p>
+        <p className={styles.userMessage}>
           {nickName} : {message}
         </p>
       )}

@@ -11,7 +11,6 @@ const ChattingInput = ({ message, onSubmit, onChange }: ChattingInputProps) => {
     <div className={styles.chattingInput}>
       <form onSubmit={onSubmit}>
         <input placeholder="Type your guess here.." value={message} onChange={onChange} />
-        <button type="submit">Send</button>
       </form>
     </div>
   );
