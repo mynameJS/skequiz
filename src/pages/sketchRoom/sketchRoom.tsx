@@ -8,12 +8,14 @@ import { UserDataType } from '../../types/user/interface';
 import Drawing from './components/drawing/Drawing';
 import Participants from './components/participants/Participants';
 import ChattingBox from './components/chatting/ChattingBox';
+import GameTable from './components/gameTable/GameTable';
 import styles from './SketchRoom.module.scss';
 
 const SketchRoom = () => {
   const [message, setMessage] = useState('');
   const [messageList, setMessageList] = useState<MessageListTuple[]>([]);
   const [participantList, setParticipantList] = useState<UserDataType[]>([]);
+  const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(0);
   const [isMyTurn, setIsMyTurn] = useState(false);
   const navigateTo = useNavigateClick();
 
@@ -50,9 +52,11 @@ const SketchRoom = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.logoBox}>로고</div>
-      <div className={styles.header}>
+      <div className={styles.logoBox}>
         <button onClick={() => setIsMyTurn(!isMyTurn)}>{isMyTurn ? '드로잉' : '왓칭'}</button>
+      </div>
+      <div className={styles.header}>
+        <GameTable participantsList={participantList} />
       </div>
       <div className={styles.playArea}>
         <div className={styles.participants}>

@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import useSocketDrawing from '../../hook/useSocketDrawing';
 import useInitCanvas from '../../hook/useInitCanvas';
 import useResizeCanvas from '../../hook/useResizeCanvas';
@@ -110,6 +110,7 @@ const Drawing = ({ isMyTurn }: DrawingProps) => {
         onMouseLeave={stopDrawing}
       />
       <div className={styles.options}>
+        <div className={styles.selectedColor} style={{ backgroundColor: contextOption.strokeStyle }}></div>
         <div className={styles.selectColor}>
           <div className={styles.colorList}>
             {colorArr.map(colorCode => (
@@ -145,9 +146,6 @@ const Drawing = ({ isMyTurn }: DrawingProps) => {
               ))}
             </ul>
           )}
-        </div>
-        <div className={styles.eraser}>
-          <button>지우개</button>
         </div>
         <div className={styles.deleteCanvas}>
           <button onClick={clearCanvas}>캔버스 롤백</button>

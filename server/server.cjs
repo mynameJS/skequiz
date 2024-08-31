@@ -44,6 +44,8 @@ io.on('connection', socket => {
     socket.broadcast.emit('updateContextOption', newContextOption);
   });
 
+  // Todo : undo 기능 추가하기
+
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
