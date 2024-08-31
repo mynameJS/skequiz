@@ -1,12 +1,40 @@
+@keyframes dropIn {
+  0% {
+    transform: translateY(-20px); /* 위에서 시작 */
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0); /* 제자리로 */
+    opacity: 1;
+  }
+}
+
 .container {
   position: absolute;
+  top: 0;
+  bottom: 0;
   width: 100%;
   height: 100vh;
   font-size: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid black;
-  background-color: gray;
-  opacity: 0.8;
+  background-color: rgba(0, 0, 0, 0.5);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  animation: dropIn 0.5s ease-out;
+
+  .spinner {
+    width: 200px;
+    height: 200px;
+  }
+
+  p {
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 4px 4px 0 #0000002b;
+  }
 }

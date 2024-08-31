@@ -3,6 +3,7 @@ import { createChattingRoom, getExistingRoomData } from '../../../../services/sk
 import { userStore } from '../../../../store/userStore';
 import createShortUniqueId from '../../../../utils/createShortUniqueId';
 import useNavigateClick from '../../../../hooks/useNavigateClick';
+import spiralSpinner from '../../../../assets/spiral_spinner.gif.gif';
 import styles from './SearchingRoom.module.scss';
 
 const SearchingRoom = () => {
@@ -25,20 +26,29 @@ const SearchingRoom = () => {
         const newRoomId = createShortUniqueId();
         updateCurrentRoomId(newRoomId);
         await createChattingRoom(newRoomId);
-        navigateTo('/sketchRoom');
+        setTimeout(() => {
+          navigateTo('/sketchRoom');
+        }, 2000);
         return;
       }
 
       if (openRoomList.length) {
         const targetRoomId = openRoomList[0];
         updateCurrentRoomId(targetRoomId);
-        navigateTo('/sketchRoom');
+        setTimeout(() => {
+          navigateTo('/sketchRoom');
+        }, 2000);
         return;
       }
     };
     selectingRoom();
   }, [openRoomList, navigateTo, updateCurrentRoomId]);
-  return <div className={styles.container}>플레이어 찾는 중...</div>;
+  return (
+    <div className={styles.container}>
+      <img className={styles.spinner} src={spiralSpinner} alt="로딩바" />
+      <p>Searching for an opponent...</p>
+    </div>
+  );
 };
 
 export default SearchingRoom;

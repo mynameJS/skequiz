@@ -33,15 +33,19 @@ const Landing = () => {
   return (
     <div className={styles.container}>
       <div className={styles.registerBox}>
-        <div className={styles.logoBox}>Logo</div>
+        <div className={styles.logoBox}>SKEQUIZ</div>
         <div className={styles.inputBox}>
-          <input placeholder="Enter Your NickName" value={userNickName} onChange={handleUserNickNameChange} />
-          <button onClick={handleCreateRanDomNickNameClick}>🎲</button>
+          <div className={styles.inputName}>
+            <input placeholder="Enter your Nickname" value={userNickName} onChange={handleUserNickNameChange} />
+            <button onClick={handleCreateRanDomNickNameClick}>🎲</button>
+          </div>
+          <div className={styles.gameButton}>
+            <button className={styles.playButton} onClick={handlePlayButtonClick}>
+              Play
+            </button>
+            <button className={styles.createRoomButton}>Create Private Room</button>
+          </div>
         </div>
-        <button className={styles.playButton} onClick={handlePlayButtonClick}>
-          Play
-        </button>
-        <button className={styles.CreateRoomButton}>Create Custom Room</button>
         {isSearching && <SearchingRoom />}
       </div>
     </div>

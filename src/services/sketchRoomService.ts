@@ -11,7 +11,7 @@ const createChattingRoom = async (roomId: string) => {
     const updates = {
       [`room/${roomId}/chatting`]: '',
       [`room/${roomId}/participants`]: '',
-      [`room/${roomId}/limit`]: 2,
+      [`room/${roomId}/limit`]: 3,
     };
     await update(ref(realTimeDB), updates);
   } catch (error) {
