@@ -6,13 +6,14 @@ import trashBin from '../../../../assets/trash_bin.svg';
 import styles from './CanvasOptions.module.scss';
 
 interface CanvasOptions {
+  isMyTurn: boolean;
   contextOption: ContextOption;
   socket: React.MutableRefObject<Socket>;
   setContextOption: React.Dispatch<React.SetStateAction<ContextOption>>;
   clearCanvas: () => void;
 }
 
-const CanvasOptions = ({ contextOption, socket, setContextOption, clearCanvas }: CanvasOptions) => {
+const CanvasOptions = ({ isMyTurn, contextOption, socket, setContextOption, clearCanvas }: CanvasOptions) => {
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
 
   const topColorArr = Object.values(COLOR_PRESET_TOP);
@@ -36,6 +37,8 @@ const CanvasOptions = ({ contextOption, socket, setContextOption, clearCanvas }:
   const toggleIsSelecting = () => {
     setIsSelecting(prevValue => !prevValue);
   };
+
+  if (!isMyTurn) return null;
 
   return (
     <div className={styles.options}>
@@ -64,8 +67,8 @@ const CanvasOptions = ({ contextOption, socket, setContextOption, clearCanvas }:
         <button onClick={toggleIsSelecting}>
           <div
             style={{
-              width: contextOption.lineWidth * 1,
-              height: contextOption.lineWidth * 1,
+              width: contextOption.lineWidth * 1.5,
+              height: contextOption.lineWidth * 1.5,
             }}></div>
         </button>
         {isSelecting && (
@@ -74,8 +77,8 @@ const CanvasOptions = ({ contextOption, socket, setContextOption, clearCanvas }:
               <li key={width} className={styles.lineWidth} onClick={() => selectContextOption('lineWidth', width)}>
                 <div
                   style={{
-                    width: width * 1,
-                    height: width * 1,
+                    width: width * 1.5,
+                    height: width * 1.5,
                   }}></div>
               </li>
             ))}

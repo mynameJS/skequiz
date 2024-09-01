@@ -3,7 +3,7 @@ import io, { Socket } from 'socket.io-client';
 import useSocketDrawing from '../../hook/useSocketDrawing';
 import useInitCanvas from '../../hook/useInitCanvas';
 import useResizeCanvas from '../../hook/useResizeCanvas';
-import CanvasOptions from './canvasOptions';
+import CanvasOptions from './CanvasOptions';
 import { ContextOption } from '../../../../types/drawing/interface';
 import styles from './Drawing.module.scss';
 
@@ -93,6 +93,7 @@ const Drawing = ({ isMyTurn }: DrawingProps) => {
         onMouseLeave={stopDrawing}
       />
       <CanvasOptions
+        isMyTurn={isMyTurn}
         contextOption={contextOption}
         socket={socket}
         setContextOption={setContextOption}

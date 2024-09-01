@@ -76,17 +76,18 @@
 
     .lineWidthList {
       position: absolute;
-      top: -265px;
+      top: -270px;
 
       box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.3);
       border-radius: 8px;
       width: 100%;
+      background-color: white;
 
       &::after {
         content: '';
         position: absolute;
-        bottom: -23px;
-        left: 11px;
+        bottom: -26px;
+        left: 12px;
         border-width: 13px;
         border-style: solid;
         border-color: #ffffff transparent transparent transparent;
