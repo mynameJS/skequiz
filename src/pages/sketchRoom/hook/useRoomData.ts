@@ -22,7 +22,13 @@ const useRoomData = (
         nickName: '시스템메세지',
         message: `${currentUserNickName} 님이 입장하였습니다.`,
       });
-      await joinParticipant(currentRoomId, { id: currentUserId, nickName: currentUserNickName });
+      await joinParticipant(currentRoomId, {
+        id: currentUserId,
+        nickName: currentUserNickName,
+        score: 0,
+        totalScore: 0,
+        isAnswer: false,
+      });
       getChattingData(currentRoomId, updateMessageList);
       getParticipantsData(currentRoomId, updateParticipantList);
     };
@@ -41,7 +47,7 @@ const useRoomData = (
             nickName: '시스템메세지',
             message: `${currentUserNickName} 님이 퇴장하였습니다.`,
           }),
-          leaveParticipant(currentRoomId, { id: currentUserId, nickName: currentUserNickName }),
+          leaveParticipant(currentRoomId, currentUserId),
         ]);
       } catch (error) {
         console.error('Error during unload:', error);
@@ -57,7 +63,7 @@ const useRoomData = (
           nickName: '시스템메세지',
           message: `${currentUserNickName} 님이 퇴장하였습니다.`,
         });
-        await leaveParticipant(currentRoomId, { id: currentUserId, nickName: currentUserNickName });
+        await leaveParticipant(currentRoomId, currentUserId);
       };
       sendLeaveMessage();
 
