@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Socket } from 'socket.io-client';
 import { COLOR_PRESET_TOP, COLOR_PRESET_BOTTOM, STROKE_SET } from '../../../../constant/canvasOptions';
 import { ContextOption } from '../../../../types/drawing/interface';
-import trashBin from '../../../../assets/trash_bin.svg';
+import paperTrash from '../../../../assets/paper_trash.png';
 import styles from './CanvasOptions.module.scss';
 
 interface CanvasOptions {
@@ -87,7 +87,7 @@ const CanvasOptions = ({ isMyTurn, contextOption, socket, setContextOption, clea
       </div>
       <div className={styles.deleteCanvas}>
         <button onClick={clearCanvas}>
-          <img className={styles.trashBin} src={trashBin} alt="클리어" />
+          <img className={styles.trashBin} src={paperTrash} alt="클리어" />
         </button>
       </div>
     </div>
