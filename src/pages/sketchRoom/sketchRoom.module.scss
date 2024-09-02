@@ -33,11 +33,15 @@
       p {
         color: rgb(32, 32, 143);
         font-weight: bold;
-        font-size: 40px;
+        font-size: 50px;
         text-shadow: 4px 4px 0 #0000002b;
 
         display: flex;
         gap: 8px;
+
+        img {
+          width: 50px;
+        }
 
         span:nth-child(1) {
           color: rgba(255, 0, 0, 0.8);
@@ -69,6 +73,8 @@
 
       background-color: rgba(255, 255, 255, 0.244);
       border-radius: 8px;
+      display: flex;
+      align-items: center;
     }
 
     .playArea {
@@ -79,7 +85,7 @@
       gap: 10px;
 
       .participants {
-        width: 15%;
+        width: 20%;
         height: 100%;
         padding: 15px;
 
@@ -91,15 +97,28 @@
         background-color: rgba(255, 255, 255, 0.244);
         border-radius: 8px;
 
-        p {
-          font-size: 20px;
-          color: whitesmoke;
+        .playerLimit {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
           margin-bottom: 10px;
+
+          p {
+            font-size: 30px;
+            font-weight: bold;
+            color: whitesmoke;
+          }
+
+          p:nth-child(2) {
+            font-size: 20px;
+          }
         }
       }
 
       .canvas {
-        width: 60%;
+        position: relative;
+        width: 55%;
         height: 100%;
         background-color: white;
         border-radius: 8px;

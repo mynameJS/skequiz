@@ -1,10 +1,57 @@
-.gameTable {
+.container {
   display: flex;
-  flex-direction: column;
-  // align-items: center;
-  justify-content: center;
+  width: 75%;
+  padding: 15px;
 
-  .timerSection {
+  .leftSection {
+    width: 30%;
     display: flex;
+    gap: 15px;
+
+    .timer {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: white;
+      border-radius: 50%;
+      width: 65px;
+      height: 65px;
+      color: rgb(13, 94, 169);
+      font-weight: bold;
+      text-shadow: 2px 2px 0 #0000002b;
+
+      p:nth-child(1) {
+        font-size: 15px;
+      }
+      p:nth-child(2) {
+        font-size: 38px;
+      }
+    }
+
+    .round {
+      display: flex;
+      align-items: center;
+      color: white;
+      font-size: 26px;
+      text-shadow: 2px 2px 0 #0000002b;
+    }
+  }
+
+  .suggestedWordBox {
+    display: flex;
+    width: 70%;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    color: white;
+    text-shadow: 2px 2px 0 #0000002b;
+
+    p:nth-child(1) {
+      font-size: 20px;
+    }
+    p:nth-child(2) {
+      font-size: 30px;
+    }
   }
 }

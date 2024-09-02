@@ -1,90 +1,97 @@
 import { useState, useEffect } from 'react';
-import { UserDataType } from '../../../../types/user/interface';
+import { DrawStartTime } from '../../../../types/gameState/interface';
 import styles from './GameTable.module.scss';
 
 interface GameTableProps {
-  participantsList: UserDataType[];
+  currentRound: number;
+  wholeRound: number;
+  currentSuggestedWord: string;
+  drawStartTime: DrawStartTime;
+  drawLimitTime: number;
+  remainingTime: number;
+  onUpdateRemainingTime: (second: number) => void;
+  isMyTurn: boolean;
 }
 
-const GameTable = ({ participantsList }: GameTableProps) => {
-  console.log(participantsList);
-  const totalRounds = 3; // 총 라운드 수
-  const participants = participantsList.map(userData => userData.nickName);
-  const [currentRound, setCurrentRound] = useState<number>(1);
-  const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(0);
-  const [timeSecond, setTimeSecond] = useState<number>(1); // 기본 타이머 60초
-  const [wordToDraw, setWordToDraw] = useState<string>(''); // 제시어 관리
-  const [gameStarted, setGameStarted] = useState<boolean>(false);
-
-  const wordsList = ['사과', '고양이', '자동차']; // 예시 제시어 목록
-
-  // 다음 라운드로 넘어가는 함수
-  const nextRound = () => {
-    setTimeSecond(1); // 타이머 리셋
-
-    // 현재 라운드의 마지막 참가자일 경우 다음 라운드로 넘어감
-    if (currentPlayerIndex === participants.length - 1) {
-      if (currentRound < totalRounds) {
-        setCurrentRound(prevRound => prevRound + 1);
-        setCurrentPlayerIndex(0); // 첫 번째 참가자로 돌아감
-      } else {
-        console.log('게임 종료');
-        // 게임 종료 로직을 여기에 추가
-        setGameStarted(false); // 게임 종료
-        return;
-      }
-    } else {
-      setCurrentPlayerIndex(prevIndex => prevIndex + 1); // 다음 참가자로 넘어감
-    }
-
-    setWordToDraw(wordsList[Math.floor(Math.random() * wordsList.length)]); // 랜덤으로 제시어 선택
-  };
-
-  // 게임 시작 시 초기 설정
-  const handleStartGame = () => {
-    setGameStarted(true);
-    setWordToDraw(wordsList[Math.floor(Math.random() * wordsList.length)]); // 제시어 설정
-  };
+const GameTable = ({
+  currentRound,
+  wholeRound,
+  currentSuggestedWord,
+  drawStartTime,
+  drawLimitTime,
+  remainingTime,
+  onUpdateRemainingTime,
+  isMyTurn,
+}: GameTableProps) => {
+  const [displayedWord, setDisplayedWord] = useState<string>('');
 
   useEffect(() => {
-    if (!gameStarted) return;
+    // 타이머 로직
+    const startTime = new Date(drawStartTime.seconds * 1000 + drawStartTime.nanoseconds / 1000000).getTime();
+    const interval = setInterval(() => {
+      const currentTime = new Date().getTime();
+      const elapsedTime = Math.floor((currentTime - startTime) / 1000);
+      const timeLeft = drawLimitTime - elapsedTime;
 
-    const timerInterval = setInterval(() => {
-      setTimeSecond(prevTime => {
-        if (prevTime <= 1) {
-          clearInterval(timerInterval);
-          nextRound(); // 타이머가 끝나면 다음 라운드로 이동
-          return 60; // 타이머를 리셋
-        }
-        return prevTime - 1;
-      });
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        onUpdateRemainingTime(0);
+      } else {
+        onUpdateRemainingTime(timeLeft);
+      }
     }, 1000);
 
-    return () => clearInterval(timerInterval); // 컴포넌트 언마운트 시 타이머 정리
-  }, [currentRound, currentPlayerIndex, gameStarted]);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [drawStartTime, drawLimitTime, onUpdateRemainingTime]);
+
+  // 시간 지나고 업데이트되기전에 결과창에서 제시어 노출될텐데
+  // 그때 정답맞추는건 적용안되는거 고려해야됨
+  useEffect(() => {
+    // 제시어 표시 로직
+    if (isMyTurn) {
+      // 내 턴일 때는 제시어를 그대로 보여줌
+      setDisplayedWord(currentSuggestedWord);
+    } else {
+      // 내 턴이 아닐 때
+      if (remainingTime > 30) {
+        setDisplayedWord('?'); // 처음에는 '?' 표시
+      } else if (remainingTime <= 30 && remainingTime > 15) {
+        // 30초 이하 15초 초과일 때 밑줄 표시
+        setDisplayedWord('_ '.repeat(currentSuggestedWord.length).trim());
+      } else if (remainingTime <= 15) {
+        // 15초 이하일 때 중간 글자 하나 표시
+        const middleIndex =
+          currentSuggestedWord.length % 2 === 0
+            ? Math.floor(currentSuggestedWord.length / 2) - 1
+            : Math.floor(currentSuggestedWord.length / 2);
+
+        const newDisplayedWord = currentSuggestedWord
+          .split('')
+          .map((char, index) => (index === middleIndex ? char : '_'))
+          .join(' ');
+
+        setDisplayedWord(newDisplayedWord);
+      }
+    }
+  }, [remainingTime, isMyTurn, currentSuggestedWord]);
 
   return (
-    <div className={styles.gameTable}>
-      {!gameStarted ? (
-        <button onClick={handleStartGame}>게임 시작</button>
-      ) : (
-        <>
-          <div className={styles.timerSection}>
-            <h2>타이머</h2>
-            <p>{timeSecond}s</p>
-          </div>
-          <div className={styles.roundSection}>
-            <h2>
-              Round {currentRound} / {totalRounds}
-            </h2>
-            <p>출제자: {participants[currentPlayerIndex]}</p>
-          </div>
-          <div className={styles.wordSection}>
-            <h2>제시어</h2>
-            <p>{wordToDraw}</p>
-          </div>
-        </>
-      )}
+    <div className={styles.container}>
+      <div className={styles.leftSection}>
+        <div className={styles.timer}>
+          <p>Timer</p>
+          <p>{remainingTime}</p>
+        </div>
+        <div className={styles.round}>
+          Round {currentRound} of {wholeRound}
+        </div>
+      </div>
+      <div className={styles.suggestedWordBox}>
+        <p>제시어</p>
+        <p>{displayedWord}</p>
+      </div>
     </div>
   );
 };
