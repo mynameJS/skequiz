@@ -2,12 +2,13 @@ import { create } from 'zustand';
 import { UserDataType } from '../types/user/interface';
 import createShortUniqueId from '../utils/createShortUniqueId';
 
+type UserDataWithoutScoreAndAnswer = Omit<UserDataType, 'score' | 'isAnswer' | 'totalScore'>;
 interface UserActions {
-  updateRoomId: (roomId: UserDataType['roomId']) => void;
-  updateUserNickName: (nickName: UserDataType['nickName']) => void;
+  updateRoomId: (roomId: UserDataWithoutScoreAndAnswer['roomId']) => void;
+  updateUserNickName: (nickName: UserDataWithoutScoreAndAnswer['nickName']) => void;
 }
 
-const userStore = create<UserDataType & UserActions>(set => ({
+const userStore = create<UserDataWithoutScoreAndAnswer & UserActions>(set => ({
   roomId: '',
   id: createShortUniqueId(),
   nickName: '',
