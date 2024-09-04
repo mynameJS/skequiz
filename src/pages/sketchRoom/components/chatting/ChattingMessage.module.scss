@@ -1,13 +1,25 @@
 .systemMessage {
-  color: red;
   padding: 3px;
   white-space: normal;
   word-wrap: break-word;
   font-weight: bold;
+
+  &.enterUser {
+    color: green;
+  }
+
+  &.leaveUser {
+    color: red;
+  }
+
+  &.correctAnswer {
+    color: rgb(74, 74, 230);
+  }
 }
 
 .userMessage {
   padding: 3px;
+  font-weight: bold;
   white-space: normal;
   word-wrap: break-word;
 }

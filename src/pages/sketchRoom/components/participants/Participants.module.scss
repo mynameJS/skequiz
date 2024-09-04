@@ -1,4 +1,4 @@
-.nickName {
+.container {
   width: 100%;
   padding: 10px;
   border-radius: 8px;
@@ -7,11 +7,26 @@
   font-weight: bold;
 
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 
-  .owner {
-    width: 24px;
-    height: 24px;
+  .nickNameBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .owner {
+      width: 20px;
+      height: 20px;
+    }
   }
+}
+
+.drawerNickName {
+  border: 3px solid yellow;
+}
+
+.answerNickName {
+  border: 3px solid rgb(52, 160, 52);
 }

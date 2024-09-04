@@ -34,18 +34,23 @@
     font-size: 3vw;
   }
   .waitingPlayer::after {
-    content: '...'; /* 점 3개 */
+    content: '...';
     animation: dots-blink 2s steps(4, end) infinite;
   }
 
   .waitingWord {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    justify-content: center;
+    align-items: center;
     color: whitesmoke;
     font-size: 2vw;
-  }
 
-  .waitingWord::after {
-    content: '...'; /* 점 3개 */
-    animation: dots-blink 2s steps(4, end) infinite;
+    p:nth-child(2)::after {
+      content: '...';
+      animation: dots-blink 2s steps(4, end) infinite;
+    }
   }
 
   .selectWordContainer {
@@ -59,10 +64,17 @@
     align-items: center;
     gap: 100px;
 
-    p {
-      font-size: 2.5vw;
-      text-shadow: 4px 4px 0 #0000002b;
-      font-weight: bold;
+    .guideMessage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+
+      p {
+        font-size: 2.5vw;
+        text-shadow: 4px 4px 0 #0000002b;
+        font-weight: bold;
+      }
     }
 
     .wordList {
