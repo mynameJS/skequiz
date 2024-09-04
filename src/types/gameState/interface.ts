@@ -13,3 +13,10 @@ export interface PlayGameState {
   drawLimitTime: number;
   isPlaying: boolean;
 }
+
+export interface PlayingStepState {
+  selectWord: boolean;
+  nowDrawing: boolean;
+  showResult: boolean;
+  showTotalResult: boolean;
+}
