@@ -3,9 +3,8 @@ import { realTimeDB } from '../config/firebase';
 import { ChattingMessageData } from '../types/chatting/interface';
 import { MessageListTuple } from '../types/chatting/type';
 import { UserDataType } from '../types/user/interface';
-import { PlayGameState } from '../types/gameState/interface';
+import { DrawStartTime, PlayGameState } from '../types/gameState/interface';
 import { Timestamp } from 'firebase/firestore';
-import { calculateScore } from '../utils/calculateScore';
 
 // 스케치룸 생성
 // 나중에 커스텀룸 만들떄 gameOption 만들어서 현재 고정값 되어있는거 유동적으로 바꿔야됨
@@ -14,7 +13,7 @@ const createChattingRoom = async (roomId: string) => {
     const updates = {
       [`room/${roomId}/chatting`]: '',
       [`room/${roomId}/participants`]: '',
-      [`room/${roomId}/playerLimit`]: 5,
+      [`room/${roomId}/playerLimit`]: 6,
       [`room/${roomId}/currentDrawerIndex`]: 0,
       [`room/${roomId}/wholeRound`]: 3,
       [`room/${roomId}/currentRound`]: 1,
@@ -177,6 +176,7 @@ const updatePlayOrder = async (roomId: string) => {
       const currentDrawerIndex = currentDrawerIndexRef.val();
       const currentRound = currentRoundRef.val();
       const wholeRound = wholeRoundRef.val();
+      let result = false;
 
       // 현재 라운드의 마지막 플레이어라면 다음 라운드로 넘어감
       if (currentDrawerIndex === currentParticipants.length - 1) {
@@ -184,17 +184,31 @@ const updatePlayOrder = async (roomId: string) => {
         if (currentRound < wholeRound) {
           updates[`/room/${roomId}/currentRound`] = currentRound + 1; // 다음 라운드로 넘어감
           updates[`/room/${roomId}/currentDrawerIndex`] = 0; // 플레이 순서 초기화
+          console.log('다음 라운드로 넘어가는데 플레이 순서 초기화하니?');
+          // 참가자 스코어 및 정답체크 및 제시어 초기화
+          await initParticipantsScore(roomId);
+          await updateSuggestedWord(roomId, '');
           // 잔여 라운드가 없다면 라운드 및 플레이순서 초기화
         } else {
           updates[`/room/${roomId}/currentRound`] = 1; // 라운드 초기화
           updates[`/room/${roomId}/currentDrawerIndex`] = 0; // 플레이 순서 초기화
-          updates[`/room/${roomId}/isPlaying`] = false; // 게임상태 false
+          console.log('플레이어 순서 초기화, 모든게임끝');
+          // 참가자 스코어 및 정답체크 및 제시어 초기화
+          await initParticipantsScore(roomId);
+          await updateSuggestedWord(roomId, '');
+          // 잔여 라운드가 없다면 true 반환
+          result = true;
         }
       } else {
         updates[`/room/${roomId}/currentDrawerIndex`] = currentDrawerIndex + 1; // 다음 플레이어로 넘어감
+        // console.log(currentDrawerIndex, currentDrawerIndex + 1);
+        // 참가자 스코어 및 정답체크 및 제시어 초기화
+        await updateSuggestedWord(roomId, '');
+        await initParticipantsScore(roomId);
       }
 
       await update(ref(realTimeDB), updates);
+      return result;
     } else {
       console.log('No data available');
     }
@@ -209,14 +223,15 @@ const updatePlayOrder = async (roomId: string) => {
 
 // 드로잉 시작 시간 업데이트
 // 시작 시간을 기준으로 플레이 중인 room 의 서버 시간을 클라이언트 끼리 동기화하기 위해
-const updateDrawStartTime = async (roomId: string) => {
+const updateDrawStartTime = async (roomId: string, isInit?: boolean) => {
   const dbRef = ref(getDatabase());
   try {
     const drawStartTimeRef = await get(child(dbRef, `room/${roomId}/drawStartTime`));
     if (drawStartTimeRef.exists()) {
+      const initTime = { seconds: 0, nanoseconds: 0 };
       const startTime = Timestamp.now();
-      const updates: { [key: string]: Timestamp } = {};
-      updates[`/room/${roomId}/drawStartTime/`] = startTime;
+      const updates: { [key: string]: Timestamp | DrawStartTime } = {};
+      updates[`/room/${roomId}/drawStartTime/`] = isInit ? initTime : startTime;
       await update(ref(realTimeDB), updates);
     } else {
       console.log('No data available');
@@ -239,7 +254,7 @@ const updateParticipantAnswer = async (roomId: string, userId: string, addScore:
       const prevParticipantsList = prevParticipantsRef.val();
       const newParticipantsList = prevParticipantsList.map((participant: UserDataType) => {
         if (participant.id === userId) {
-          return { ...participant, isAnswer: true, score: addScore, totalScore: participant.score + addScore };
+          return { ...participant, isAnswer: true, score: addScore, totalScore: participant.totalScore + addScore };
         }
         return participant;
       });
@@ -258,69 +273,30 @@ const updateParticipantAnswer = async (roomId: string, userId: string, addScore:
   }
 };
 
-// 전체 참가자 정답체크 초기화
-const initParticipantsAnswer = async (roomId: string) => {
+// 전체 참가자 정답체크 및 스코어 초기화
+const initParticipantsScore = async (roomId: string, resetTotal: boolean = false) => {
   const dbRef = ref(getDatabase());
   try {
     const prevParticipantsRef = await get(child(dbRef, `room/${roomId}/participants`));
     if (prevParticipantsRef.exists()) {
       const prevParticipantsList = prevParticipantsRef.val();
-      const newParticipantsList = prevParticipantsList.map((participant: UserDataType) => ({
-        ...participant,
-        isAnswer: false,
-      }));
-      const updates: { [key: string]: UserDataType[] } = {};
-      updates[`/room/${roomId}/participants/`] = newParticipantsList;
-      await update(ref(realTimeDB), updates);
-    } else {
-      console.log('No data available');
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error('Error adding document: ', error.message);
-    } else {
-      console.error('Unexpected error', error);
-    }
-  }
-};
 
-// 전체 참가자 스코어 초기화
-const initParticipantsScore = async (roomId: string) => {
-  const dbRef = ref(getDatabase());
-  try {
-    const prevParticipantsRef = await get(child(dbRef, `room/${roomId}/participants`));
-    if (prevParticipantsRef.exists()) {
-      const prevParticipantsList = prevParticipantsRef.val();
-      const newParticipantsList = prevParticipantsList.map((participant: UserDataType) => ({
-        ...participant,
-        score: 0,
-      }));
-      const updates: { [key: string]: UserDataType[] } = {};
-      updates[`/room/${roomId}/participants/`] = newParticipantsList;
-      await update(ref(realTimeDB), updates);
-    } else {
-      console.log('No data available');
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error('Error adding document: ', error.message);
-    } else {
-      console.error('Unexpected error', error);
-    }
-  }
-};
+      // resetTotal 매개변수에 따라 초기화 방식 분기
+      const newParticipantsList = prevParticipantsList.map((participant: UserDataType) =>
+        resetTotal
+          ? {
+              ...participant,
+              score: 0,
+              totalScore: 0,
+              isAnswer: false,
+            }
+          : {
+              ...participant,
+              score: 0,
+              isAnswer: false,
+            }
+      );
 
-// 전체 참가자 토탈 스코어 초기화
-const initParticipantsTotalScore = async (roomId: string) => {
-  const dbRef = ref(getDatabase());
-  try {
-    const prevParticipantsRef = await get(child(dbRef, `room/${roomId}/participants`));
-    if (prevParticipantsRef.exists()) {
-      const prevParticipantsList = prevParticipantsRef.val();
-      const newParticipantsList = prevParticipantsList.map((participant: UserDataType) => ({
-        ...participant,
-        totalScore: 0,
-      }));
       const updates: { [key: string]: UserDataType[] } = {};
       updates[`/room/${roomId}/participants/`] = newParticipantsList;
       await update(ref(realTimeDB), updates);
@@ -345,7 +321,7 @@ const togglePlayingState = async (roomId: string) => {
       const prevIsPlayingState = prevIsPlayingRef.val();
       const newIsPlayingState = !prevIsPlayingState;
       const updates: { [key: string]: boolean } = {};
-      updates[`/room/${roomId}/participants/`] = newIsPlayingState;
+      updates[`/room/${roomId}/isPlaying/`] = newIsPlayingState;
       await update(ref(realTimeDB), updates);
     } else {
       console.log('No data available');
@@ -400,8 +376,6 @@ export {
   updateDrawStartTime,
   getPlayGameState,
   updateParticipantAnswer,
-  initParticipantsAnswer,
   initParticipantsScore,
-  initParticipantsTotalScore,
   togglePlayingState,
 };
