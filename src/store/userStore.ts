@@ -8,12 +8,10 @@ interface UserActions {
   updateUserNickName: (nickName: UserDataWithoutScoreAndAnswer['nickName']) => void;
 }
 
-const userStore = create<UserDataWithoutScoreAndAnswer & UserActions>(set => ({
+export const userStore = create<UserDataWithoutScoreAndAnswer & UserActions>(set => ({
   roomId: '',
   id: createShortUniqueId(),
   nickName: '',
   updateUserNickName: nickName => set(() => ({ nickName: nickName })),
   updateRoomId: roomId => set(() => ({ roomId: roomId })),
 }));
-
-export { userStore };

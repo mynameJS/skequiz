@@ -3,6 +3,7 @@ import { fireStoreDB } from '../config/firebase';
 import { UserDataType } from '../types/user/interface';
 
 // 아마 roomId 별로 참여자리스트만 관리할거라 유저데이터를 따로 저장안할거긴한데
+// 나중에 사람들이 그린 그림 저장해서 솔로플레이로 풀어보는 기능도 생각해봄
 // 일단 보류
 const registerUserData = async (userData: UserDataType) => {
   try {
