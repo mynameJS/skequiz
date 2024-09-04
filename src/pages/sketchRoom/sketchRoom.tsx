@@ -2,25 +2,21 @@ import { useState, useEffect } from 'react';
 import useNavigateClick from '../../hooks/useNavigateClick';
 import useRoomData from './hook/useRoomData';
 import useGameState from './hook/useGameState';
+import useGameStart from './hook/useGameStart';
 import { userStore } from '../../store/userStore';
-import { sendChattingMessage, togglePlayingState } from '../../services/sketchRoomService';
-import { MessageListTuple } from '../../types/chatting/type';
 import { UserDataType } from '../../types/user/interface';
-import { PlayGameState } from '../../types/gameState/interface';
+import { PlayGameState, PlayingStepState } from '../../types/gameState/interface';
 import palette from '../../assets/palette.png';
 import Drawing from './components/drawing/Drawing';
 import Participants from './components/participants/Participants';
 import ChattingBox from './components/chatting/ChattingBox';
 import GuideBoard from './components/guideBoard/GuideBoard';
-import styles from './SketchRoom.module.scss';
 import GameTable from './components/gameTable/GameTable';
+import styles from './SketchRoom.module.scss';
 
 const SketchRoom = () => {
   const navigateTo = useNavigateClick();
-  const [message, setMessage] = useState('');
-  const [messageList, setMessageList] = useState<MessageListTuple[]>([]);
   const [participantList, setParticipantList] = useState<UserDataType[]>([]);
-  const [currentViewGuideBoard, setCurrentVidwGuideBoard] = useState<string>('');
   const [playGameState, setPlayGameState] = useState<PlayGameState>({
     playerLimit: 3,
     currentDrawerIndex: 0,
@@ -31,7 +27,6 @@ const SketchRoom = () => {
     drawLimitTime: 90,
     isPlaying: false,
   });
-
   const {
     playerLimit,
     currentDrawerIndex,
@@ -42,29 +37,31 @@ const SketchRoom = () => {
     drawLimitTime,
     isPlaying,
   } = playGameState;
-
+  const [clearCanvasTrigger, setClearCanvasTrigger] = useState<boolean>(false);
   const [remainingTime, setRemainingTime] = useState<number>(drawLimitTime);
+  const [isGuideTurn, setIsGuideTurn] = useState<boolean>(false);
+  const [playingStep, setPlayingStep] = useState<PlayingStepState>({
+    selectWord: false,
+    nowDrawing: false,
+    showResult: false,
+    showTotalResult: false,
+  });
 
   const currentRoomId = userStore(state => state.roomId) ?? '';
   const currentUserId = userStore(state => state.id);
   const currentUserNickName = userStore(state => state.nickName);
-  const roomOwnerId = participantList[0]?.id ?? '';
-  const isOwner = roomOwnerId === currentUserId;
-  const isMyTurn = participantList[currentDrawerIndex]?.id === currentUserId;
-
-  // const currentDrawer = participantList[currentDrawerIndex];
-
-  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value);
-
-  const handleSendButtonClick = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    sendChattingMessage(currentRoomId, { nickName: currentUserNickName, message: message });
-    setMessage('');
-  };
-
-  const updateMessageList = (newMessageList: MessageListTuple[]) => {
-    setMessageList(newMessageList);
-  };
+  const roomOwnerId = participantList.length > 0 ? participantList[0]?.id : '';
+  const isRoomOwner = roomOwnerId === currentUserId;
+  const isMyTurn = isPlaying && participantList[currentDrawerIndex]?.id === currentUserId;
+  const isAnswer =
+    participantList.length > 0 ? participantList.filter(userData => userData.id === currentUserId)[0]?.isAnswer : false;
+  const isAllPass =
+    participantList.length > 0
+      ? participantList.filter(userData => userData.isAnswer).length === participantList.length - 1
+      : false;
+  const isAllStepsFalse =
+    !playingStep.selectWord && !playingStep.nowDrawing && !playingStep.showResult && !playingStep.showTotalResult;
+  const { nickName: currentDrawerNickName, id: currentDrawerId } = participantList[currentDrawerIndex] || {};
 
   const updateParticipantList = (newParticipantList: UserDataType[]) => {
     setParticipantList(newParticipantList);
@@ -74,20 +71,22 @@ const SketchRoom = () => {
     setRemainingTime(second);
   };
 
-  // 일단 출제자 도중 탈주 상황 처리 (그 다음 차례로 바로 넘어가기)
-  // 시간초 내에 출제자를 제외한 참여자가 모두 정답을 맞췄을 경우 다음 순서로 넘어가기
-  // 한 문제 끝날떄마다 참여자별로 몇점 얻었는지 guideBoard 하나 추가하기
+  const updatePlayingStep = (stepName: keyof PlayingStepState, reset: boolean = false) => {
+    setPlayingStep({
+      selectWord: reset ? false : stepName === 'selectWord',
+      nowDrawing: reset ? false : stepName === 'nowDrawing',
+      showResult: reset ? false : stepName === 'showResult',
+      showTotalResult: reset ? false : stepName === 'showTotalResult',
+    });
+  };
 
-  // useEffect(() => {
-  //   const gameStart = async () => {
-  //     // 참가자가 2명 이상이고 게임중이 아니라면
-  //   if(participantList.length > 1 && !isPlaying ) {
-  //     // 게임 상태 시작으로 변경
-  //     await togglePlayingState(currentRoomId);
-  //   }
+  const updateIsGuideTurn = (state: boolean) => {
+    setIsGuideTurn(state);
+  };
 
-  //   }
-  // },[])
+  const updateClearCanvasTrigger = () => {
+    setClearCanvasTrigger(prevValue => !prevValue);
+  };
 
   useEffect(() => {
     // 새로고침 시 전역상태로 관리중인 유저정보가 초기화되고 바로 스케치룸에서 로비로 리다이렉트처리
@@ -96,14 +95,34 @@ const SketchRoom = () => {
     }
   }, [currentUserNickName, navigateTo]);
 
-  useRoomData(currentRoomId, currentUserNickName, currentUserId, updateMessageList, updateParticipantList);
+  useGameStart({
+    participantList,
+    updatePlayingStep,
+    updateClearCanvasTrigger,
+    updateIsGuideTurn,
+    playingStep,
+    currentRoomId,
+    isRoomOwner,
+    isAllPass,
+    isAllStepsFalse,
+    isPlaying: playGameState.isPlaying,
+    currentSuggestedWord: playGameState.currentSuggestedWord,
+    remainingTime,
+    currentRound: playGameState.currentRound,
+    currentDrawerId,
+  });
+  useRoomData(currentRoomId, currentUserNickName, currentUserId, updateParticipantList);
   useGameState(currentRoomId, setPlayGameState);
 
   return (
     <div className={styles.container}>
-      {messageList.length && participantList.length && (
+      {participantList.length && (
         <div className={styles.gameBoard}>
-          <div className={styles.logoBox}>
+          <div
+            className={styles.logoBox}
+            onClick={() => {
+              navigateTo('/');
+            }}>
             <p>
               <span>S</span>
               <span>K</span>
@@ -135,29 +154,42 @@ const SketchRoom = () => {
                   ({participantList.length} / {playerLimit})
                 </p>
               </div>
-              {participantList.map(({ id, nickName }) => (
+              {participantList.map(({ id, nickName, totalScore, isAnswer }) => (
                 <Participants
                   key={id}
                   nickName={nickName}
                   userId={id}
                   currentUserId={currentUserId}
                   roomOwnerId={roomOwnerId}
+                  currentDrawerId={currentDrawerId}
+                  isPlaying={isPlaying}
+                  isAnswer={isAnswer}
+                  totalScore={totalScore}
                 />
               ))}
             </div>
             <div className={styles.canvas}>
-              <Drawing isMyTurn={isMyTurn} />
-              <GuideBoard
-                participantList={participantList}
-                currentViewGuideBoard={currentViewGuideBoard}
-                currentSuggestedWord={currentSuggestedWord}
-              />
+              <Drawing isMyTurn={isMyTurn} clearCanvasTrigger={clearCanvasTrigger} />
+              {isGuideTurn && (
+                <GuideBoard
+                  participantList={participantList}
+                  currentSuggestedWord={currentSuggestedWord}
+                  currentDrawerNickName={currentDrawerNickName}
+                  playingStep={playingStep}
+                  isMyTurn={isMyTurn}
+                  isAllStepsFalse={isAllStepsFalse}
+                />
+              )}
             </div>
             <ChattingBox
-              message={message}
-              messageList={messageList}
-              onChange={handleMessageChange}
-              onSubmit={handleSendButtonClick}
+              currentRoomId={currentRoomId}
+              currentUserNickName={currentUserNickName}
+              currentUserId={currentUserId}
+              currentSuggestedWord={currentSuggestedWord}
+              isMyTurn={isMyTurn}
+              drawLimitTime={drawLimitTime}
+              remainingTime={remainingTime}
+              isAnswer={isAnswer}
             />
           </div>
         </div>
