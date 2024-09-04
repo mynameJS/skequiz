@@ -2,16 +2,16 @@ import { useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import { PointData } from '../../../types/drawing/interface';
 
-interface UseSocketDrawingProps {
-  socket: Socket;
+interface UseSocketDrawingParams {
+  socket: Socket | null;
   context: CanvasRenderingContext2D | null;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   isMyTurn: boolean;
 }
 
-const useSocketDrawing = ({ socket, context, canvasRef, isMyTurn }: UseSocketDrawingProps) => {
+const useSocketDrawing = ({ socket, context, canvasRef, isMyTurn }: UseSocketDrawingParams) => {
   useEffect(() => {
-    if (isMyTurn) return; // 출제자의 경우 자신의 화면에서 실시간으로 그림을 업데이트
+    if (isMyTurn || !socket) return; // 출제자의 경우 자신의 화면에서 실시간으로 그림을 업데이트
 
     // 선 그리기 시작 이벤트를 받으면 새로운 선을 시작
     socket.on('startDrawing', () => {

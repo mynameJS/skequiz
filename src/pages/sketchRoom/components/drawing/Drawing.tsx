@@ -9,9 +9,10 @@ import styles from './Drawing.module.scss';
 
 interface DrawingProps {
   isMyTurn: boolean;
+  clearCanvasTrigger: boolean;
 }
 
-const Drawing = ({ isMyTurn }: DrawingProps) => {
+const Drawing = ({ isMyTurn, clearCanvasTrigger }: DrawingProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -21,14 +22,15 @@ const Drawing = ({ isMyTurn }: DrawingProps) => {
     lineWidth: 2,
     strokeStyle: 'black',
   });
-  const socket = useRef<Socket>(io(import.meta.env.VITE_NODE_SOCKET_URL));
+
+  const socket = useRef<Socket | null>(null); // 초기에는 null로 설정
 
   useInitCanvas(canvasRef, setContext, contextOption);
   useResizeCanvas(canvasRef, containerRef);
   useSocketDrawing({ socket: socket.current, context, canvasRef, isMyTurn });
 
   const startDrawing = async (event: React.MouseEvent) => {
-    if (context && isMyTurn) {
+    if (context && isMyTurn && socket.current) {
       context.beginPath();
       context.moveTo(event.nativeEvent.offsetX, event.nativeEvent.offsetY);
       setIsDrawing(true);
@@ -37,7 +39,7 @@ const Drawing = ({ isMyTurn }: DrawingProps) => {
   };
 
   const draw = (event: React.MouseEvent) => {
-    if (isDrawing && context && isMyTurn) {
+    if (isDrawing && context && isMyTurn && socket.current) {
       const x = event.nativeEvent.offsetX;
       const y = event.nativeEvent.offsetY;
 
@@ -59,7 +61,7 @@ const Drawing = ({ isMyTurn }: DrawingProps) => {
   };
 
   const stopDrawing = () => {
-    if (isDrawing && context && isMyTurn) {
+    if (isDrawing && context && isMyTurn && socket.current) {
       context.closePath();
       setIsDrawing(false);
       socket.current.emit('stopDrawing'); // 선 종료 이벤트 전송
@@ -68,19 +70,24 @@ const Drawing = ({ isMyTurn }: DrawingProps) => {
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
-    if (canvas && context) {
+    if (canvas && context && socket.current) {
       context.clearRect(0, 0, canvas.width, canvas.height); // 캔버스의 전체 영역 지우기
       socket.current.emit('clearCanvas'); // 캔버스 초기화 이벤트 전송
     }
   };
 
   useEffect(() => {
+    socket.current = io(import.meta.env.VITE_NODE_SOCKET_URL); // 소켓 연결 설정
     const socketInstance = socket.current;
 
     return () => {
-      socketInstance.disconnect();
+      socketInstance.disconnect(); // 컴포넌트 언마운트 시 소켓 연결 해제
     };
-  }, []);
+  }, []); // 빈 배열을 전달하여 한 번만 실행되도록 설정
+
+  useEffect(() => {
+    clearCanvas();
+  }, [clearCanvasTrigger]);
 
   return (
     <div className={styles.container} ref={containerRef}>
