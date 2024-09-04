@@ -6,18 +6,20 @@ interface ChattingMessageProps {
 }
 
 const ChattingMessage = ({ nickName, message }: ChattingMessageProps) => {
-  const isSystemMessage = nickName === '시스템메세지';
+  const systemMessageClasses: { [key: string]: string } = {
+    enterUser: styles.enterUser,
+    leaveUser: styles.leaveUser,
+    correctAnswer: styles.correctAnswer,
+  };
+
+  if (nickName in systemMessageClasses) {
+    return <p className={`${styles.systemMessage} ${systemMessageClasses[nickName]}`}>{message}</p>;
+  }
 
   return (
-    <div>
-      {isSystemMessage ? (
-        <p className={styles.systemMessage}>{message}</p>
-      ) : (
-        <p className={styles.userMessage}>
-          {nickName} : {message}
-        </p>
-      )}
-    </div>
+    <p className={styles.userMessage}>
+      {nickName} : {message}
+    </p>
   );
 };
 
