@@ -23,31 +23,29 @@ const GameTable = ({
   onUpdateRemainingTime,
   isMyTurn,
 }: GameTableProps) => {
-  const [displayedWord, setDisplayedWord] = useState<string>('');
+  const [displayedWord, setDisplayedWord] = useState<string>('?');
 
   useEffect(() => {
-    // 타이머 로직
+    if (!drawStartTime || drawStartTime.seconds === 0) return; // drawStartTime이 유효하지 않으면 실행하지 않음
+
     const startTime = new Date(drawStartTime.seconds * 1000 + drawStartTime.nanoseconds / 1000000).getTime();
+
     const interval = setInterval(() => {
-      const currentTime = new Date().getTime();
-      const elapsedTime = Math.floor((currentTime - startTime) / 1000);
+      const currentTime = Date.now(); // 현재 시간
+      const elapsedTime = Math.floor((currentTime - startTime) / 1000); // 경과 시간(초)
       const timeLeft = drawLimitTime - elapsedTime;
 
       if (timeLeft <= 0) {
         clearInterval(interval);
-        onUpdateRemainingTime(0);
+        onUpdateRemainingTime(0); // 남은 시간이 0 이하가 되면 0으로 설정
       } else {
-        onUpdateRemainingTime(timeLeft);
+        onUpdateRemainingTime(timeLeft); // 남은 시간을 업데이트
       }
     }, 1000);
 
-    return () => {
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval); // 컴포넌트 언마운트 또는 drawStartTime 변경 시 타이머 정리
   }, [drawStartTime, drawLimitTime, onUpdateRemainingTime]);
 
-  // 시간 지나고 업데이트되기전에 결과창에서 제시어 노출될텐데
-  // 그때 정답맞추는건 적용안되는거 고려해야됨
   useEffect(() => {
     // 제시어 표시 로직
     if (isMyTurn) {
