@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { MutableRefObject, useState } from 'react';
 import { Socket } from 'socket.io-client';
 import { COLOR_PRESET_TOP, COLOR_PRESET_BOTTOM, STROKE_SET } from '../../../../constant/canvasOptions';
 import { ContextOption } from '../../../../types/drawing/interface';
@@ -8,7 +8,7 @@ import styles from './CanvasOptions.module.scss';
 interface CanvasOptions {
   isMyTurn: boolean;
   contextOption: ContextOption;
-  socket: React.MutableRefObject<Socket>;
+  socket: MutableRefObject<Socket | null>;
   setContextOption: React.Dispatch<React.SetStateAction<ContextOption>>;
   clearCanvas: () => void;
 }
@@ -17,7 +17,7 @@ const CanvasOptions = ({ isMyTurn, contextOption, socket, setContextOption, clea
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
 
   const topColorArr = Object.values(COLOR_PRESET_TOP);
-  const bottomColorArr2 = Object.values(COLOR_PRESET_BOTTOM);
+  const bottomColorArr = Object.values(COLOR_PRESET_BOTTOM);
 
   const selectContextOption = (optionName: string, selectedValue: string | number) => {
     if (optionName === 'lineWidth') {
@@ -29,7 +29,10 @@ const CanvasOptions = ({ isMyTurn, contextOption, socket, setContextOption, clea
         [optionName]: selectedValue,
       };
       // 변경된 옵션을 소켓 서버에 전송
-      socket.current.emit('updateContextOption', newContextOption);
+      // socket.current가 null이 아닌 경우에만 emit 호출
+      if (socket.current) {
+        socket.current.emit('updateContextOption', newContextOption);
+      }
       return newContextOption;
     });
   };
@@ -54,7 +57,7 @@ const CanvasOptions = ({ isMyTurn, contextOption, socket, setContextOption, clea
           ))}
         </div>
         <div className={styles.colorList}>
-          {bottomColorArr2.map(colorCode => (
+          {bottomColorArr.map(colorCode => (
             <div
               key={colorCode}
               className={styles.bottomColorSwatch}

@@ -1,25 +1,22 @@
 import { useEffect } from 'react';
 import {
   sendChattingMessage,
-  getChattingData,
   getParticipantsData,
   joinParticipant,
   leaveParticipant,
 } from '../../../services/sketchRoomService';
-import { MessageListTuple } from '../../../types/chatting/type';
 import { UserDataType } from '../../../types/user/interface';
 
 const useRoomData = (
   currentRoomId: string,
   currentUserNickName: string,
   currentUserId: string,
-  updateMessageList: (messages: MessageListTuple[]) => void,
   updateParticipantList: (participants: UserDataType[]) => void
 ) => {
   useEffect(() => {
     const fetchRoomData = async () => {
       await sendChattingMessage(currentRoomId, {
-        nickName: '시스템메세지',
+        nickName: 'enterUser',
         message: `${currentUserNickName} 님이 입장하였습니다.`,
       });
       await joinParticipant(currentRoomId, {
@@ -29,7 +26,6 @@ const useRoomData = (
         totalScore: 0,
         isAnswer: false,
       });
-      getChattingData(currentRoomId, updateMessageList);
       getParticipantsData(currentRoomId, updateParticipantList);
     };
 
@@ -44,7 +40,7 @@ const useRoomData = (
       try {
         await Promise.all([
           sendChattingMessage(currentRoomId, {
-            nickName: '시스템메세지',
+            nickName: 'leaveUser',
             message: `${currentUserNickName} 님이 퇴장하였습니다.`,
           }),
           leaveParticipant(currentRoomId, currentUserId),
@@ -60,7 +56,7 @@ const useRoomData = (
     return () => {
       const sendLeaveMessage = async () => {
         await sendChattingMessage(currentRoomId, {
-          nickName: '시스템메세지',
+          nickName: 'leaveUser',
           message: `${currentUserNickName} 님이 퇴장하였습니다.`,
         });
         await leaveParticipant(currentRoomId, currentUserId);
