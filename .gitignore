@@ -117,3 +117,7 @@ temp/
 
 # Vite files
 .vite
+
+
+# server files
+*.pem
