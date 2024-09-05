@@ -3,6 +3,7 @@ import { realTimeDB } from '../config/firebase';
 import { ChattingMessageData } from '../types/chatting/interface';
 import { MessageListTuple } from '../types/chatting/type';
 import { UserDataType } from '../types/user/interface';
+import { RoomData } from '../types/gameState/interface';
 import { DrawStartTime, PlayGameState } from '../types/gameState/interface';
 import { Timestamp } from 'firebase/firestore';
 
@@ -118,7 +119,7 @@ const getExistingRoomData = (onUpdateData: (roomIdList: string[] | string) => vo
   const currentExistingRoomDataRef = ref(realTimeDB, `room`);
   onValue(currentExistingRoomDataRef, snapshot => {
     const data = snapshot.val();
-    const dataConvertedArr = Object.entries(data);
+    const dataConvertedArr = Object.entries(data) as [string, RoomData][];
     const openRoom = dataConvertedArr
       .filter(roomData => {
         if (roomData[1].participants && roomData[1].participants.length < roomData[1].playerLimit) return true;

@@ -1,3 +1,5 @@
+import { UserDataType } from '../user/interface';
+
 export interface DrawStartTime {
   seconds: number;
   nanoseconds: number;
@@ -19,4 +21,9 @@ export interface PlayingStepState {
   nowDrawing: boolean;
   showResult: boolean;
   showTotalResult: boolean;
+}
+
+export interface RoomData {
+  participants: UserDataType[];
+  playerLimit: number;
 }
