@@ -6,6 +6,7 @@ import {
   leaveParticipant,
 } from '../../../services/sketchRoomService';
 import { UserDataType } from '../../../types/user/interface';
+import { playSound } from '../../../utils/playSound';
 
 const useRoomData = (
   currentRoomId: string,
@@ -19,6 +20,9 @@ const useRoomData = (
         nickName: 'enterUser',
         message: `${currentUserNickName} 님이 입장하였습니다.`,
       });
+
+      playSound('enterRoom');
+
       await joinParticipant(currentRoomId, {
         id: currentUserId,
         nickName: currentUserNickName,
@@ -62,7 +66,7 @@ const useRoomData = (
         await leaveParticipant(currentRoomId, currentUserId);
       };
       sendLeaveMessage();
-
+      playSound('leaveRoom');
       // 이벤트 핸들러 구독 취소
       window.removeEventListener('beforeunload', handleUnload);
     };

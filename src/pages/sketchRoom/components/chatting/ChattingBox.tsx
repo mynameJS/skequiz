@@ -4,6 +4,7 @@ import ChattingInput from './ChattingInput';
 import { sendChattingMessage, getChattingData, updateParticipantAnswer } from '../../../../services/sketchRoomService';
 import { MessageListTuple } from '../../../../types/chatting/type';
 import { calculateScore } from '../../../../utils/calculateScore';
+import { playSound } from '../../../../utils/playSound';
 import styles from './ChattingBox.module.scss';
 
 interface ChattingBoxProps {
@@ -48,6 +49,7 @@ const ChattingBox = ({
           nickName: 'correctAnswer',
           message: `${currentUserNickName} 님이 정답을 맞추셨습니다`,
         });
+        playSound('correctAnswer');
         await updateParticipantAnswer(currentRoomId, currentUserId, getScore);
         setMessage('');
         return;
