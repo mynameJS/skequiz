@@ -16,6 +16,7 @@ interface ChattingBoxProps {
   drawLimitTime: number;
   remainingTime: number;
   isAnswer: boolean;
+  nowDrawing: boolean;
 }
 
 const ChattingBox = ({
@@ -27,6 +28,7 @@ const ChattingBox = ({
   drawLimitTime,
   remainingTime,
   isAnswer,
+  nowDrawing,
 }: ChattingBoxProps) => {
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const [message, setMessage] = useState('');
@@ -39,10 +41,11 @@ const ChattingBox = ({
   const handleSendButtonClick = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // 제시어가 빈문자열이 아니라 업데이트되었을때 && 정답을 맞추지 않은 상태일때
-    if (currentSuggestedWord && !isAnswer) {
+    // 제시어가 빈문자열이 아니라 업데이트되었을때 && 정답을 맞추지 않은 상태일때 && nowDrawing 단계일때
+    if (currentSuggestedWord && !isAnswer && nowDrawing) {
       const checkAnswer = message.trim() === currentSuggestedWord;
 
+      // nowDrawing 단계일 때만
       // 정답체크하고 시스템메세지보내고, 정답체크 및 스코어업데이트
       if (checkAnswer) {
         await sendChattingMessage(currentRoomId, {
