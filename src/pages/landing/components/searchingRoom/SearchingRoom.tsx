@@ -3,7 +3,7 @@ import { createChattingRoom, getExistingRoomData } from '../../../../services/sk
 import { userStore } from '../../../../store/userStore';
 import createShortUniqueId from '../../../../utils/createShortUniqueId';
 import useNavigateClick from '../../../../hooks/useNavigateClick';
-import spiralSpinner from '../../../../assets/spiral_spinner.gif.gif';
+import spiralSpinner from '../../../../assets/image/spiral_spinner.gif.gif';
 import styles from './SearchingRoom.module.scss';
 
 const SearchingRoom = () => {

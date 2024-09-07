@@ -6,7 +6,7 @@ import useGameStart from './hook/useGameStart';
 import { userStore } from '../../store/userStore';
 import { UserDataType } from '../../types/user/interface';
 import { PlayGameState, PlayingStepState } from '../../types/gameState/interface';
-import palette from '../../assets/palette.png';
+import palette from '../../assets/image/palette.png';
 import Drawing from './components/drawing/Drawing';
 import Participants from './components/participants/Participants';
 import ChattingBox from './components/chatting/ChattingBox';
@@ -50,6 +50,7 @@ const SketchRoom = () => {
   const currentRoomId = userStore(state => state.roomId) ?? '';
   const currentUserId = userStore(state => state.id);
   const currentUserNickName = userStore(state => state.nickName);
+  const currentParticipantListLength = participantList.length;
   const roomOwnerId = participantList.length > 0 ? participantList[0]?.id : '';
   const isRoomOwner = roomOwnerId === currentUserId;
   const isMyTurn = isPlaying && participantList[currentDrawerIndex]?.id === currentUserId;
@@ -111,7 +112,7 @@ const SketchRoom = () => {
     currentRound: playGameState.currentRound,
     currentDrawerId,
   });
-  useRoomData(currentRoomId, currentUserNickName, currentUserId, updateParticipantList);
+  useRoomData(currentRoomId, currentUserNickName, currentUserId, updateParticipantList, currentParticipantListLength);
   useGameState(currentRoomId, setPlayGameState);
 
   return (
@@ -190,6 +191,7 @@ const SketchRoom = () => {
               drawLimitTime={drawLimitTime}
               remainingTime={remainingTime}
               isAnswer={isAnswer}
+              nowDrawing={playingStep.nowDrawing}
             />
           </div>
         </div>

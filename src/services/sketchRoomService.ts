@@ -1,4 +1,4 @@
-import { ref, onValue, child, push, update, get, getDatabase } from 'firebase/database';
+import { ref, onValue, child, push, update, get, getDatabase, remove } from 'firebase/database';
 import { realTimeDB } from '../config/firebase';
 import { ChattingMessageData } from '../types/chatting/interface';
 import { MessageListTuple } from '../types/chatting/type';
@@ -336,6 +336,28 @@ const togglePlayingState = async (roomId: string) => {
   }
 };
 
+// 게임룸 삭제
+const deletePlayRoom = async (roomId: string) => {
+  const dbRef = ref(getDatabase());
+  try {
+    // 방의 데이터를 먼저 가져옴
+    const targetRoomRef = await get(child(dbRef, `room/${roomId}`));
+    if (targetRoomRef.exists()) {
+      // 데이터가 존재하면 삭제
+      await remove(ref(getDatabase(), `room/${roomId}`)); // 경로에서 직접 삭제
+      console.log(`Room ${roomId} deleted successfully.`);
+    } else {
+      console.log('No data available');
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error deleting room: ', error.message);
+    } else {
+      console.error('Unexpected error', error);
+    }
+  }
+};
+
 // 게임 정보 실시간 구독
 const getPlayGameState = (roomId: string, onUpdateState: (gameState: PlayGameState) => void) => {
   const playGameStateDataRef = ref(realTimeDB, `room/${roomId}`);
@@ -379,4 +401,5 @@ export {
   updateParticipantAnswer,
   initParticipantsScore,
   togglePlayingState,
+  deletePlayRoom,
 };

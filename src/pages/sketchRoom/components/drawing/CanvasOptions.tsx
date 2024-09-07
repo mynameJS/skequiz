@@ -2,7 +2,7 @@ import { MutableRefObject, useState } from 'react';
 import { Socket } from 'socket.io-client';
 import { COLOR_PRESET_TOP, COLOR_PRESET_BOTTOM, STROKE_SET } from '../../../../constant/canvasOptions';
 import { ContextOption } from '../../../../types/drawing/interface';
-import paperTrash from '../../../../assets/paper_trash.png';
+import paperTrash from '../../../../assets/image/paper_trash.png';
 import styles from './CanvasOptions.module.scss';
 
 interface CanvasOptions {

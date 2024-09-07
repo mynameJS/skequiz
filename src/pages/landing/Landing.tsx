@@ -21,7 +21,7 @@ const Landing = () => {
   // 전역변수 업데이트 후 입장 전 서칭룸으로 이동
   const handlePlayButtonClick = () => {
     // 닉네임을 입력하지 않고 플레이버튼 클릭 시 랜덤닉네임 부여
-    if (userNickName === '') {
+    if (userNickName.trim() === '') {
       const randomNickName = createRandomNickName();
       updateCurrentUserNickName(randomNickName);
     } else {
