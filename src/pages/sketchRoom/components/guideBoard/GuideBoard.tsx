@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { userStore } from '../../../../store/userStore';
 import { createRandomWordList } from '../../../../utils/createRandomWordList';
 import { updateSuggestedWord, updateDrawStartTime } from '../../../../services/sketchRoomService';
-import goldMedal from '../../../../assets/medal_gold.png';
-import silverMedal from '../../../../assets/medal_silver.png';
-import bronzeMedal from '../../../../assets/medal_bronze.png';
+import goldMedal from '../../../../assets/image/medal_gold.png';
+import silverMedal from '../../../../assets/image/medal_silver.png';
+import bronzeMedal from '../../../../assets/image/medal_bronze.png';
 import { UserDataType } from '../../../../types/user/interface';
 import { PlayingStepState } from '../../../../types/gameState/interface';
 import styles from './GuideBoard.module.scss';
@@ -60,7 +60,7 @@ const WaitingOtherPlayers = () => {
 const SelectWord = () => {
   const currentRoomId = userStore(state => state.roomId) ?? '';
   const [randomWordList, setRandomWordList] = useState<string[]>([]);
-  const [secondsLeft, setSecondsLeft] = useState<number>(5);
+  const [secondsLeft, setSecondsLeft] = useState<number>(15);
   const [autoSelectedWord, setAutoSelectedWord] = useState<string | null>(null);
 
   const handleWordClick = async (roomId: string, selectedWord: string) => {

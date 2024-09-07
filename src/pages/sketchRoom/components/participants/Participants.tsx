@@ -1,4 +1,4 @@
-import crown from '../../../../assets/crown.png';
+import crown from '../../../../assets/image/crown.png';
 import styles from './Participants.module.scss';
 
 interface ParticipantsProps {

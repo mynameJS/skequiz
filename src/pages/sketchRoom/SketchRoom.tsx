@@ -6,7 +6,7 @@ import useGameStart from './hook/useGameStart';
 import { userStore } from '../../store/userStore';
 import { UserDataType } from '../../types/user/interface';
 import { PlayGameState, PlayingStepState } from '../../types/gameState/interface';
-import palette from '../../assets/palette.png';
+import palette from '../../assets/image/palette.png';
 import Drawing from './components/drawing/Drawing';
 import Participants from './components/participants/Participants';
 import ChattingBox from './components/chatting/ChattingBox';
