@@ -50,7 +50,6 @@ const SketchRoom = () => {
   const currentRoomId = userStore(state => state.roomId) ?? '';
   const currentUserId = userStore(state => state.id);
   const currentUserNickName = userStore(state => state.nickName);
-  const currentParticipantListLength = participantList.length;
   const roomOwnerId = participantList.length > 0 ? participantList[0]?.id : '';
   const isRoomOwner = roomOwnerId === currentUserId;
   const isMyTurn = isPlaying && participantList[currentDrawerIndex]?.id === currentUserId;
@@ -112,7 +111,7 @@ const SketchRoom = () => {
     currentRound: playGameState.currentRound,
     currentDrawerId,
   });
-  useRoomData(currentRoomId, currentUserNickName, currentUserId, updateParticipantList, currentParticipantListLength);
+  useRoomData(currentRoomId, currentUserNickName, currentUserId, updateParticipantList);
   useGameState(currentRoomId, setPlayGameState);
 
   return (
