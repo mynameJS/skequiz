@@ -43,7 +43,7 @@ const useRoomData = (
     // 검색해보니 beforeunload 이벤트에 비동기처리 시 모든 비동기처리가 실행된다는 보장이 없다고함 (다 실행되기 전에 페이지 닫히면)
     // 첫번쨰 비동기처리는 실행되는 걸 단서삼아 Promise.all 로 하나의 await 키워드 안에서 모두 실행시켜서 일단은 정상작동되게 만듦
     const handleUnload = async (currentParticipantListLength: number) => {
-      console.log(currentParticipantListLength);
+      console.log('남은인원', currentParticipantListLength);
       try {
         await Promise.all([
           sendChattingMessage(currentRoomId, {
@@ -51,8 +51,6 @@ const useRoomData = (
             message: `${currentUserNickName} 님이 퇴장하였습니다.`,
           }),
           leaveParticipant(currentRoomId, currentUserId),
-          // 인원이 1명일 때 방을 나가게되면 게임룸 삭제
-          currentParticipantListLength === 0 ? deletePlayRoom(currentRoomId) : Promise.resolve(),
         ]);
       } catch (error) {
         console.error('Error during unload:', error);
@@ -63,10 +61,6 @@ const useRoomData = (
 
     return () => {
       const sendLeaveMessage = async () => {
-        if (currentParticipantListLength === 0) {
-          await deletePlayRoom(currentRoomId);
-          return;
-        }
         await sendChattingMessage(currentRoomId, {
           nickName: 'leaveUser',
           message: `${currentUserNickName} 님이 퇴장하였습니다.`,

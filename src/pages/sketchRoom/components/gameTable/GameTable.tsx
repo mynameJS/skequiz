@@ -32,7 +32,6 @@ const GameTable = ({
 
     // selectWord 단계일때는 시간 drawLimitTime 으로고정
     if (isSelectWordTime) {
-      console.log('이거 되고있는거맞아?');
       onUpdateRemainingTime(drawLimitTime);
       return;
     }
