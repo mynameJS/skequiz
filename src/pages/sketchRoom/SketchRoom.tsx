@@ -145,6 +145,7 @@ const SketchRoom = () => {
               remainingTime={remainingTime}
               onUpdateRemainingTime={updateRemainingTime}
               isMyTurn={isMyTurn}
+              isSelectWordTime={playingStep.selectWord}
             />
           </div>
           <div className={styles.playArea}>

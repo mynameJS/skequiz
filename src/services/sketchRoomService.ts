@@ -185,7 +185,7 @@ const updatePlayOrder = async (roomId: string) => {
         if (currentRound < wholeRound) {
           updates[`/room/${roomId}/currentRound`] = currentRound + 1; // 다음 라운드로 넘어감
           updates[`/room/${roomId}/currentDrawerIndex`] = 0; // 플레이 순서 초기화
-          console.log('다음 라운드로 넘어가는데 플레이 순서 초기화하니?');
+
           // 참가자 스코어 및 정답체크 및 제시어 초기화
           await initParticipantsScore(roomId);
           await updateSuggestedWord(roomId, '');
@@ -193,7 +193,7 @@ const updatePlayOrder = async (roomId: string) => {
         } else {
           updates[`/room/${roomId}/currentRound`] = 1; // 라운드 초기화
           updates[`/room/${roomId}/currentDrawerIndex`] = 0; // 플레이 순서 초기화
-          console.log('플레이어 순서 초기화, 모든게임끝');
+
           // 참가자 스코어 및 정답체크 및 제시어 초기화
           await initParticipantsScore(roomId);
           await updateSuggestedWord(roomId, '');
@@ -202,7 +202,7 @@ const updatePlayOrder = async (roomId: string) => {
         }
       } else {
         updates[`/room/${roomId}/currentDrawerIndex`] = currentDrawerIndex + 1; // 다음 플레이어로 넘어감
-        // console.log(currentDrawerIndex, currentDrawerIndex + 1);
+
         // 참가자 스코어 및 정답체크 및 제시어 초기화
         await updateSuggestedWord(roomId, '');
         await initParticipantsScore(roomId);
