@@ -63,7 +63,6 @@ const useRoomData = (
 
     return () => {
       const sendLeaveMessage = async () => {
-        console.log('ddd', currentParticipantListLength);
         if (currentParticipantListLength === 0) {
           await deletePlayRoom(currentRoomId);
           return;
