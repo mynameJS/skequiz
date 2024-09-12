@@ -16,6 +16,7 @@ interface GuideBoardProps {
   playingStep: PlayingStepState;
   isMyTurn: boolean;
   isAllStepsFalse: boolean;
+  isPublic: boolean;
 }
 
 interface GameResultProps {
@@ -34,10 +35,11 @@ const GuideBoard = ({
   isMyTurn,
   playingStep,
   isAllStepsFalse,
+  isPublic,
 }: GuideBoardProps) => {
   return (
     <div className={styles.container}>
-      {isAllStepsFalse && <WaitingOtherPlayers />}
+      {isPublic && isAllStepsFalse && <WaitingOtherPlayers />}
 
       {playingStep.selectWord &&
         (isMyTurn ? <SelectWord /> : <WaitingSelectWord currentDrawerNickName={currentDrawerNickName} />)}
