@@ -14,6 +14,7 @@ export interface PlayGameState {
   drawStartTime: DrawStartTime;
   drawLimitTime: number;
   isPlaying: boolean;
+  isPublic: boolean;
 }
 
 export interface PlayingStepState {
@@ -26,4 +27,11 @@ export interface PlayingStepState {
 export interface RoomData {
   participants: UserDataType[];
   playerLimit: number;
+  isPublic: boolean;
+}
+
+export interface GameRules {
+  players: number;
+  rounds: number;
+  timeLimit: number;
 }
