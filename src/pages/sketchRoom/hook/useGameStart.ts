@@ -19,6 +19,9 @@ interface UseGameStartParams {
   remainingTime: number;
   currentRound: number;
   currentDrawerId: string;
+  isPublic: boolean;
+  isCustomGameRuleOpen: boolean;
+  ControlCustomGameRule: (state: boolean) => void;
 }
 
 const useGameStart = ({
@@ -36,6 +39,8 @@ const useGameStart = ({
   remainingTime,
   currentRound,
   currentDrawerId,
+  isPublic,
+  ControlCustomGameRule,
 }: UseGameStartParams) => {
   const tempPrevDrawerId = useDrawStore(state => state.tempDrawerId);
   const updateTempPrevDrawerId = useDrawStore(state => state.setTempDrawerId);
@@ -43,16 +48,18 @@ const useGameStart = ({
   useEffect(() => {
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     const gameStart = async () => {
+      // Public 룸이면서
       // 게임 중 아니면서 혼자 방에 있다면
       // WaitingOtherPlayers GuideBoard 렌더링
-      if (!isPlaying && participantList.length < 2) {
+      if (isPublic && !isPlaying && participantList.length < 2) {
         updateIsGuideTurn(true);
         return;
       }
 
+      // Public 룸이면서
       // 내가 방장이면서 방 인원수 2명이상이고 게임중이 아니라면
-      // (게임 시작 트리거)
-      if (isRoomOwner && participantList.length > 1 && !isPlaying) {
+      // (게임 자동 시작 트리거)
+      if (isPublic && isRoomOwner && participantList.length > 1 && !isPlaying) {
         await togglePlayingState(currentRoomId);
         return;
       }
@@ -131,6 +138,10 @@ const useGameStart = ({
               // 게임 상태 false
               await togglePlayingState(currentRoomId);
 
+              // private room 이라면?
+              // CustomGameRule 컴포넌트 호출
+              if (!isPublic) ControlCustomGameRule(true);
+
               // 잔여 라운드가 남아 있다면
             } else {
               // 단계 초기화 후 상단 코드로 돌아가서 selectWord 단계 돌입
@@ -174,6 +185,10 @@ const useGameStart = ({
               // 게임 상태 false
               await togglePlayingState(currentRoomId);
 
+              // private room 이라면?
+              // CustomGameRule 컴포넌트 호출
+              if (!isPublic) ControlCustomGameRule(true);
+
               // 잔여 라운드가 남아 있다면
             } else {
               // 단계 초기화 후 상단 코드로 돌아가서 selectWord 단계 돌입
@@ -196,6 +211,8 @@ const useGameStart = ({
     isAllStepsFalse,
     currentRound,
     currentDrawerId,
+    currentRoomId,
+    isPublic,
   ]);
 };
 

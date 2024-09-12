@@ -25,7 +25,7 @@ const SearchingRoom = () => {
       if (openRoomList === 'create') {
         const newRoomId = createShortUniqueId();
         updateCurrentRoomId(newRoomId);
-        await createChattingRoom(newRoomId);
+        await createChattingRoom(newRoomId, true);
         setTimeout(() => {
           navigateTo('/sketchRoom');
         }, 2000);

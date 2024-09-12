@@ -5,7 +5,7 @@ import { PlayGameState } from '../../../types/gameState/interface';
 const useGameState = (currentRoomId: string, updateGameState: (newGameState: PlayGameState) => void) => {
   useEffect(() => {
     getPlayGameState(currentRoomId, updateGameState);
-  }, [currentRoomId]);
+  }, [currentRoomId, updateGameState]);
 };
 
 export default useGameState;

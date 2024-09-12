@@ -6,26 +6,30 @@ import useGameStart from './hook/useGameStart';
 import { userStore } from '../../store/userStore';
 import { UserDataType } from '../../types/user/interface';
 import { PlayGameState, PlayingStepState } from '../../types/gameState/interface';
+import { DEFAULT_GAME_RULE_OPTIONS } from '../../constant/gameRuleOptions';
 import palette from '../../assets/image/palette.png';
 import Drawing from './components/drawing/Drawing';
 import Participants from './components/participants/Participants';
 import ChattingBox from './components/chatting/ChattingBox';
 import GuideBoard from './components/guideBoard/GuideBoard';
 import GameTable from './components/gameTable/GameTable';
+import CustomGameRule from './components/customGameRule/CustomGameRule';
 import styles from './SketchRoom.module.scss';
 
 const SketchRoom = () => {
   const navigateTo = useNavigateClick();
+  const { defaultPlayerLimit, defaultRound, defaultDrawTimeLimit } = DEFAULT_GAME_RULE_OPTIONS;
   const [participantList, setParticipantList] = useState<UserDataType[]>([]);
   const [playGameState, setPlayGameState] = useState<PlayGameState>({
-    playerLimit: 3,
+    playerLimit: defaultPlayerLimit,
     currentDrawerIndex: 0,
-    wholeRound: 3,
+    wholeRound: defaultRound,
     currentRound: 1,
     currentSuggestedWord: '',
     drawStartTime: { seconds: 0, nanoseconds: 0 },
-    drawLimitTime: 90,
+    drawLimitTime: defaultDrawTimeLimit,
     isPlaying: false,
+    isPublic: true,
   });
   const {
     playerLimit,
@@ -36,9 +40,12 @@ const SketchRoom = () => {
     drawStartTime,
     drawLimitTime,
     isPlaying,
+    isPublic,
   } = playGameState;
+
   const [clearCanvasTrigger, setClearCanvasTrigger] = useState<boolean>(false);
   const [remainingTime, setRemainingTime] = useState<number>(drawLimitTime);
+  const [isCustomGameRuleOpen, setIsCustomGameRuleOpen] = useState<boolean>(true);
   const [isGuideTurn, setIsGuideTurn] = useState<boolean>(false);
   const [playingStep, setPlayingStep] = useState<PlayingStepState>({
     selectWord: false,
@@ -50,6 +57,7 @@ const SketchRoom = () => {
   const currentRoomId = userStore(state => state.roomId) ?? '';
   const currentUserId = userStore(state => state.id);
   const currentUserNickName = userStore(state => state.nickName);
+  const currentParticipantsLen = participantList.length;
   const roomOwnerId = participantList.length > 0 ? participantList[0]?.id : '';
   const isRoomOwner = roomOwnerId === currentUserId;
   const isMyTurn = isPlaying && participantList[currentDrawerIndex]?.id === currentUserId;
@@ -88,6 +96,10 @@ const SketchRoom = () => {
     setClearCanvasTrigger(prevValue => !prevValue);
   };
 
+  const ControlCustomGameRule = (state: boolean) => {
+    setIsCustomGameRuleOpen(state);
+  };
+
   useEffect(() => {
     // 새로고침 시 전역상태로 관리중인 유저정보가 초기화되고 바로 스케치룸에서 로비로 리다이렉트처리
     if (currentUserNickName === '') {
@@ -110,10 +122,13 @@ const SketchRoom = () => {
     remainingTime,
     currentRound: playGameState.currentRound,
     currentDrawerId,
+    isPublic,
+    isCustomGameRuleOpen,
+    ControlCustomGameRule,
   });
   useRoomData(currentRoomId, currentUserNickName, currentUserId, updateParticipantList);
   useGameState(currentRoomId, setPlayGameState);
-
+  console.log(playGameState, isCustomGameRuleOpen, '스케치룸');
   return (
     <div className={styles.container}>
       {participantList.length && (
@@ -171,7 +186,7 @@ const SketchRoom = () => {
             </div>
             <div className={styles.canvas}>
               <Drawing isMyTurn={isMyTurn} clearCanvasTrigger={clearCanvasTrigger} />
-              {isGuideTurn && (
+              {isPlaying && isGuideTurn && (
                 <GuideBoard
                   participantList={participantList}
                   currentSuggestedWord={currentSuggestedWord}
@@ -179,6 +194,19 @@ const SketchRoom = () => {
                   playingStep={playingStep}
                   isMyTurn={isMyTurn}
                   isAllStepsFalse={isAllStepsFalse}
+                  isPublic={isPublic}
+                />
+              )}
+              {!isPublic && isCustomGameRuleOpen && (
+                <CustomGameRule
+                  currentParticipantsLen={currentParticipantsLen}
+                  currentRoomId={currentRoomId}
+                  currentPlayerLimit={playerLimit}
+                  currentWholeRound={wholeRound}
+                  currentDrawTimeLimit={drawLimitTime}
+                  isRoomOwner={isRoomOwner}
+                  ControlCustomGameRule={ControlCustomGameRule}
+                  isPlaying={isPlaying}
                 />
               )}
             </div>

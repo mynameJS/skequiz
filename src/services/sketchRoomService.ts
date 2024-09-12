@@ -3,25 +3,27 @@ import { realTimeDB } from '../config/firebase';
 import { ChattingMessageData } from '../types/chatting/interface';
 import { MessageListTuple } from '../types/chatting/type';
 import { UserDataType } from '../types/user/interface';
-import { RoomData } from '../types/gameState/interface';
+import { GameRules, RoomData } from '../types/gameState/interface';
 import { DrawStartTime, PlayGameState } from '../types/gameState/interface';
 import { Timestamp } from 'firebase/firestore';
+import { DEFAULT_GAME_RULE_OPTIONS } from '../constant/gameRuleOptions';
 
 // 스케치룸 생성
-// 나중에 커스텀룸 만들떄 gameOption 만들어서 현재 고정값 되어있는거 유동적으로 바꿔야됨
-const createChattingRoom = async (roomId: string) => {
+const createChattingRoom = async (roomId: string, isPublic: boolean) => {
+  const { defaultPlayerLimit, defaultRound, defaultDrawTimeLimit } = DEFAULT_GAME_RULE_OPTIONS;
   try {
     const updates = {
       [`room/${roomId}/chatting`]: '',
       [`room/${roomId}/participants`]: '',
-      [`room/${roomId}/playerLimit`]: 6,
+      [`room/${roomId}/playerLimit`]: defaultPlayerLimit,
       [`room/${roomId}/currentDrawerIndex`]: 0,
-      [`room/${roomId}/wholeRound`]: 3,
+      [`room/${roomId}/wholeRound`]: defaultRound,
       [`room/${roomId}/currentRound`]: 1,
       [`room/${roomId}/currentSuggestedWord`]: '',
       [`room/${roomId}/drawStartTime`]: { seconds: 0, nanoseconds: 0 },
-      [`room/${roomId}/drawLimitTime`]: 90,
+      [`room/${roomId}/drawLimitTime`]: defaultDrawTimeLimit,
       [`room/${roomId}/isPlaying`]: false,
+      [`room/${roomId}/isPublic`]: isPublic,
     };
     await update(ref(realTimeDB), updates);
   } catch (error) {
@@ -114,7 +116,7 @@ const getParticipantsData = (roomId: string, onUpdateData: (userData: UserDataTy
   });
 };
 
-// 현재 플레이중인 Room 중에 입장가능한 Room id
+// 현재 플레이중인 Public Room 중에 입장가능한 Room id
 const getExistingRoomData = (onUpdateData: (roomIdList: string[] | string) => void) => {
   const currentExistingRoomDataRef = ref(realTimeDB, `room`);
   onValue(currentExistingRoomDataRef, snapshot => {
@@ -122,7 +124,12 @@ const getExistingRoomData = (onUpdateData: (roomIdList: string[] | string) => vo
     const dataConvertedArr = Object.entries(data) as [string, RoomData][];
     const openRoom = dataConvertedArr
       .filter(roomData => {
-        if (roomData[1].participants && roomData[1].participants.length < roomData[1].playerLimit) return true;
+        if (
+          roomData[1].participants &&
+          roomData[1].isPublic &&
+          roomData[1].participants.length < roomData[1].playerLimit
+        )
+          return true;
       })
       .map(roomData => roomData[0]);
     if (openRoom.length === 0) {
@@ -358,6 +365,37 @@ const deletePlayRoom = async (roomId: string) => {
   }
 };
 
+// Private Room 옵션 업데이트
+const updateGameRoomOptions = async (roomId: string, selectedOptions: GameRules) => {
+  const dbRef = ref(getDatabase());
+  try {
+    const prevPlayerLimitRef = await get(child(dbRef, `room/${roomId}/playerLimit`));
+    const prevWholeRoundRef = await get(child(dbRef, `room/${roomId}/wholeRound`));
+    const prevDrawLimitTimeRef = await get(child(dbRef, `room/${roomId}/drawLimitTime`));
+
+    const refCheck = prevPlayerLimitRef.exists() && prevWholeRoundRef.exists() && prevDrawLimitTimeRef.exists();
+
+    const { players, rounds, timeLimit } = selectedOptions;
+
+    if (refCheck) {
+      const updates: { [key: string]: number } = {};
+      updates[`/room/${roomId}/playerLimit/`] = players;
+      updates[`/room/${roomId}/wholeRound/`] = rounds;
+      updates[`/room/${roomId}/drawLimitTime/`] = timeLimit;
+
+      await update(ref(realTimeDB), updates);
+    } else {
+      console.log('No data available');
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error adding document: ', error.message);
+    } else {
+      console.error('Unexpected error', error);
+    }
+  }
+};
+
 // 게임 정보 실시간 구독
 const getPlayGameState = (roomId: string, onUpdateState: (gameState: PlayGameState) => void) => {
   const playGameStateDataRef = ref(realTimeDB, `room/${roomId}`);
@@ -371,6 +409,7 @@ const getPlayGameState = (roomId: string, onUpdateState: (gameState: PlayGameSta
       drawStartTime,
       drawLimitTime,
       isPlaying,
+      isPublic,
     } = snapshot.val();
     const newPlayGameState = {
       playerLimit,
@@ -381,6 +420,7 @@ const getPlayGameState = (roomId: string, onUpdateState: (gameState: PlayGameSta
       drawStartTime,
       drawLimitTime,
       isPlaying,
+      isPublic,
     };
     onUpdateState(newPlayGameState);
   });
@@ -402,4 +442,5 @@ export {
   initParticipantsScore,
   togglePlayingState,
   deletePlayRoom,
+  updateGameRoomOptions,
 };
