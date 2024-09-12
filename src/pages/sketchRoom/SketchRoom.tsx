@@ -222,6 +222,12 @@ const SketchRoom = () => {
               nowDrawing={playingStep.nowDrawing}
             />
           </div>
+          <div className={styles.inviteBox}>
+            <div className={styles.inviteCodeBox}>
+              <p className={styles.hover}>초대 링크를 보려면 마우스를 올리세요 !</p>
+              <input readOnly value={`https://skequiz.netlify.app/skechRoom/${currentRoomId}`} />
+            </div>
+          </div>
         </div>
       )}
     </div>
