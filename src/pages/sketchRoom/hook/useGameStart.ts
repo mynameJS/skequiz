@@ -92,6 +92,11 @@ const useGameStart = ({
             await initParticipantsScore(currentRoomId, true);
             // 단계 초기화
             updatePlayingStep('selectWord', true);
+
+            // private Room 이라면
+            if (!isPublic) {
+              ControlCustomGameRule(true);
+            }
             return;
           }
 
