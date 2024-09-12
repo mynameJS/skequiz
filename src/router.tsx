@@ -8,6 +8,7 @@ const Router = () => {
         <Route path="/" element={<Page.Root />}>
           <Route index element={<Page.Landing />} />
           <Route path="/sketchRoom" element={<Page.SketchRoom />} />
+          <Route path="/sketchRoom/:roomId" element={<Page.EnterPrivateSketchRoom />} />
         </Route>
       </Routes>
     </BrowserRouter>
