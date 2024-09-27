@@ -53,6 +53,7 @@ const SketchRoom = () => {
     showResult: false,
     showTotalResult: false,
   });
+  const [drawMode, setDrawMode] = useState<'lineDraw' | 'fill'>('lineDraw');
 
   const currentRoomId = userStore(state => state.roomId) ?? '';
   const currentUserId = userStore(state => state.id);
@@ -70,6 +71,7 @@ const SketchRoom = () => {
   const isAllStepsFalse =
     !playingStep.selectWord && !playingStep.nowDrawing && !playingStep.showResult && !playingStep.showTotalResult;
   const { nickName: currentDrawerNickName, id: currentDrawerId } = participantList[currentDrawerIndex] || {};
+  const cursorClass = isMyTurn ? (drawMode === 'lineDraw' ? styles.lineDraw : styles.fill) : styles.default;
 
   const updateParticipantList = (newParticipantList: UserDataType[]) => {
     setParticipantList(newParticipantList);
@@ -139,17 +141,16 @@ const SketchRoom = () => {
   });
   useRoomData(currentRoomId, currentUserNickName, currentUserId, updateParticipantList);
   useGameState(currentRoomId, setPlayGameState);
-  console.log(playGameState, isCustomGameRuleOpen, '스케치룸');
+
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${cursorClass}`}>
       {participantList.length && (
         <div className={styles.gameBoard}>
-          <div
-            className={styles.logoBox}
-            onClick={() => {
-              navigateTo('/');
-            }}>
-            <p>
+          <div className={styles.logoBox}>
+            <p
+              onClick={() => {
+                navigateTo('/');
+              }}>
               <span>S</span>
               <span>K</span>
               <span>E</span>
@@ -196,7 +197,12 @@ const SketchRoom = () => {
               ))}
             </div>
             <div className={styles.canvas}>
-              <Drawing isMyTurn={isMyTurn} clearCanvasTrigger={clearCanvasTrigger} />
+              <Drawing
+                isMyTurn={isMyTurn}
+                clearCanvasTrigger={clearCanvasTrigger}
+                drawMode={drawMode}
+                setDrawMode={setDrawMode}
+              />
               {isPlaying && isGuideTurn && (
                 <GuideBoard
                   participantList={participantList}
@@ -233,7 +239,7 @@ const SketchRoom = () => {
               nowDrawing={playingStep.nowDrawing}
             />
           </div>
-          {!isPublic && (
+          {!isPlaying && !isPublic && (
             <div className={styles.inviteBox}>
               <div className={styles.inviteCodeBox}>
                 <button onClick={handleInviteLinkButton} className={styles.inviteCode}>

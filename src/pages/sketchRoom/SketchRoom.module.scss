@@ -29,7 +29,6 @@
       height: 50px;
       display: flex;
       align-items: center;
-      cursor: pointer;
 
       p {
         color: rgb(32, 32, 143);
@@ -39,6 +38,8 @@
 
         display: flex;
         gap: 8px;
+
+        cursor: pointer;
 
         img {
           width: 50px;
@@ -161,4 +162,16 @@
       }
     }
   }
+}
+
+.container.default {
+  cursor: default;
+}
+
+.container.lineDraw {
+  cursor: url('../../assets/image/pencil_cursor.png') 0 36, auto;
+}
+
+.container.fill {
+  cursor: url('../../assets//image/paint_bucket_cursor.png') 18 18, auto;
 }
