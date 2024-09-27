@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import { PointData } from '../../../types/drawing/interface';
+import { floodFill } from '../../../utils/floodFill';
 
 interface UseSocketDrawingParams {
   socket: Socket | null;
@@ -55,11 +56,23 @@ const useSocketDrawing = ({ socket, context, canvasRef, isMyTurn }: UseSocketDra
       }
     });
 
+    socket.on('fillArea', (data: { x: number; y: number; fillColor: string }) => {
+      const canvas = canvasRef.current;
+      if (canvas && context) {
+        const absoluteX = Math.round(data.x * canvas.width); // 비율을 사용하여 절대 좌표 계산
+        const absoluteY = Math.round(data.y * canvas.height);
+
+        // floodFill 함수를 사용하여 캔버스에 색칠
+        floodFill(canvas, absoluteX, absoluteY, data.fillColor);
+      }
+    });
+
     return () => {
       socket.off('startDrawing');
       socket.off('drawing');
       socket.off('stopDrawing');
       socket.off('updateContextOption');
+      socket.off('fillArea');
     };
   }, [isMyTurn, context, canvasRef, socket]);
 };

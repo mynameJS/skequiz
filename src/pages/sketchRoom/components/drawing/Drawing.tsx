@@ -4,15 +4,18 @@ import useSocketDrawing from '../../hook/useSocketDrawing';
 import useInitCanvas from '../../hook/useInitCanvas';
 import useResizeCanvas from '../../hook/useResizeCanvas';
 import CanvasOptions from './CanvasOptions';
+import { floodFill } from '../../../../utils/floodFill';
 import { ContextOption } from '../../../../types/drawing/interface';
 import styles from './Drawing.module.scss';
 
 interface DrawingProps {
   isMyTurn: boolean;
   clearCanvasTrigger: boolean;
+  drawMode: string;
+  setDrawMode: React.Dispatch<React.SetStateAction<'lineDraw' | 'fill'>>;
 }
 
-const Drawing = ({ isMyTurn, clearCanvasTrigger }: DrawingProps) => {
+const Drawing = ({ isMyTurn, clearCanvasTrigger, drawMode, setDrawMode }: DrawingProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -76,6 +79,28 @@ const Drawing = ({ isMyTurn, clearCanvasTrigger }: DrawingProps) => {
     }
   };
 
+  const fillArea = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+    if (drawMode === 'fill') {
+      const canvas = canvasRef.current;
+      if (canvas && context && socket.current) {
+        const x = event.nativeEvent.offsetX;
+        const y = event.nativeEvent.offsetY;
+
+        // 캔버스의 현재 크기를 기준으로 비율 계산
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const relativeX = x / canvasWidth;
+        const relativeY = y / canvasHeight;
+        const fillColor = contextOption.strokeStyle;
+
+        floodFill(canvas, x, y, fillColor);
+
+        // 서버에 색칠된 좌표 및 색상 전송 (비율로 변환)
+        socket.current.emit('fillArea', { x: relativeX, y: relativeY, fillColor });
+      }
+    }
+  };
+
   useEffect(() => {
     socket.current = io(import.meta.env.VITE_NODE_SOCKET_URL); // 소켓 연결 설정
     const socketInstance = socket.current;
@@ -98,6 +123,7 @@ const Drawing = ({ isMyTurn, clearCanvasTrigger }: DrawingProps) => {
         onMouseMove={draw}
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
+        onClick={fillArea}
       />
       <CanvasOptions
         isMyTurn={isMyTurn}
@@ -105,6 +131,7 @@ const Drawing = ({ isMyTurn, clearCanvasTrigger }: DrawingProps) => {
         socket={socket}
         setContextOption={setContextOption}
         clearCanvas={clearCanvas}
+        setDrawMode={setDrawMode}
       />
     </div>
   );
