@@ -25,9 +25,9 @@ io.on('connection', socket => {
   });
 
   // 그림을 그릴 때마다 좌표 데이터를 받음
-  socket.on('drawing', data => {
+  socket.on('drawing', drawData => {
     // 다른 클라이언트에게 그림 데이터를 브로드캐스트
-    socket.broadcast.emit('drawing', data);
+    socket.broadcast.emit('drawing', drawData);
   });
 
   // 그림을 멈출 때
@@ -43,6 +43,11 @@ io.on('connection', socket => {
   // 색상 및 선 굵기 업데이트 이벤트
   socket.on('updateContextOption', newContextOption => {
     socket.broadcast.emit('updateContextOption', newContextOption);
+  });
+
+  // 색상 채우기 이벤트
+  socket.on('fillArea', fillData => {
+    socket.broadcast.emit('fillArea', fillData);
   });
 
   // Todo : undo 기능 추가하기

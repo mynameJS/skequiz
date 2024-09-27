@@ -190,6 +190,8 @@ const useGameStart = ({
               // 게임 상태 false
               await togglePlayingState(currentRoomId);
 
+              await delay(2000);
+
               // private room 이라면?
               // CustomGameRule 컴포넌트 호출
               if (!isPublic) ControlCustomGameRule(true);

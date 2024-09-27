@@ -29,7 +29,6 @@
       height: 50px;
       display: flex;
       align-items: center;
-      cursor: pointer;
 
       p {
         color: rgb(32, 32, 143);
@@ -39,6 +38,8 @@
 
         display: flex;
         gap: 8px;
+
+        cursor: pointer;
 
         img {
           width: 50px;
@@ -146,39 +147,31 @@
         display: flex;
         justify-content: center;
 
-        .hover {
+        .inviteCode {
           width: 100%;
           height: 100%;
           border-radius: 8px;
           position: absolute;
           background-color: rgba(57, 103, 177, 1);
-
-          display: flex;
-          justify-content: center;
-          align-items: center;
-
-          &:hover,
-          &:focus {
-            display: none;
-          }
-        }
-
-        input {
-          width: 100%;
-          height: 100%;
-          border-radius: 8px;
-          background-color: rgba(57, 103, 177, 1);
-          display: flex;
-          justify-content: center;
-          align-items: center;
           color: whitesmoke;
-          text-align: center;
 
-          &:focus {
-            outline: none;
-          }
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
       }
     }
   }
+}
+
+.container.default {
+  cursor: default;
+}
+
+.container.lineDraw {
+  cursor: url('../../assets/image/pencil_cursor.png') 0 36, auto;
+}
+
+.container.fill {
+  cursor: url('../../assets//image/paint_bucket_cursor.png') 18 18, auto;
 }

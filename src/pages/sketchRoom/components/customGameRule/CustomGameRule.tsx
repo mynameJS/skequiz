@@ -3,6 +3,7 @@ import { togglePlayingState } from '../../../../services/sketchRoomService';
 import { updateGameRoomOptions } from '../../../../services/sketchRoomService';
 import { GAME_RULE_OPTIONS } from '../../../../constant/gameRuleOptions';
 import { GameRules } from '../../../../types/gameState/interface';
+import { playSound } from '../../../../utils/playSound';
 import styles from './CustomGameRule.module.scss';
 
 interface CustomGameRuleProps {
@@ -37,6 +38,7 @@ const CustomGameRule = ({
   const isPlayStartValid = currentParticipantsLen <= gameRules.players && currentParticipantsLen > 1;
 
   const handleIncrement = (key: keyof GameRules) => {
+    playSound('selectOption');
     setGameRules(prevState => {
       const options = key === 'players' ? playerLimit : key === 'rounds' ? round : drawTimeLimit;
 
@@ -48,6 +50,7 @@ const CustomGameRule = ({
   };
 
   const handleDecrement = (key: keyof GameRules) => {
+    playSound('selectOption');
     setGameRules(prevState => {
       const options = key === 'players' ? playerLimit : key === 'rounds' ? round : drawTimeLimit;
 
