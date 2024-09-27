@@ -146,37 +146,17 @@
         display: flex;
         justify-content: center;
 
-        .hover {
+        .inviteCode {
           width: 100%;
           height: 100%;
           border-radius: 8px;
           position: absolute;
           background-color: rgba(57, 103, 177, 1);
-
-          display: flex;
-          justify-content: center;
-          align-items: center;
-
-          &:hover,
-          &:focus {
-            display: none;
-          }
-        }
-
-        input {
-          width: 100%;
-          height: 100%;
-          border-radius: 8px;
-          background-color: rgba(57, 103, 177, 1);
-          display: flex;
-          justify-content: center;
-          align-items: center;
           color: whitesmoke;
-          text-align: center;
 
-          &:focus {
-            outline: none;
-          }
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
       }
     }

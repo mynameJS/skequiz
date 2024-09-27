@@ -100,6 +100,17 @@ const SketchRoom = () => {
     setIsCustomGameRuleOpen(state);
   };
 
+  const handleInviteLinkButton = async () => {
+    const inviteLink = `https://skequiz.netlify.app/sketchRoom/${currentRoomId}`;
+    try {
+      await navigator.clipboard.writeText(inviteLink);
+      alert('초대링크 복사 완료 !');
+    } catch (error) {
+      console.error('Failed to copy text: ', error);
+      alert('초대링크 복사에 실패했습니다.');
+    }
+  };
+
   useEffect(() => {
     // 새로고침 시 전역상태로 관리중인 유저정보가 초기화되고 바로 스케치룸에서 로비로 리다이렉트처리
     if (currentUserNickName === '') {
@@ -222,12 +233,15 @@ const SketchRoom = () => {
               nowDrawing={playingStep.nowDrawing}
             />
           </div>
-          <div className={styles.inviteBox}>
-            <div className={styles.inviteCodeBox}>
-              <p className={styles.hover}>초대 링크를 보려면 마우스를 올리세요 !</p>
-              <input readOnly value={`https://skequiz.netlify.app/skechRoom/${currentRoomId}`} />
+          {!isPublic && (
+            <div className={styles.inviteBox}>
+              <div className={styles.inviteCodeBox}>
+                <button onClick={handleInviteLinkButton} className={styles.inviteCode}>
+                  Copy Invite Link !
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
