@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { userStore } from '../../store/userStore';
 import createShortUniqueId from '../../utils/createShortUniqueId';
 import SearchingRoom from './components/searchingRoom/SearchingRoom';
+import PatchNote from './components/patchNote/PatchNote';
 import useNavigateClick from '../../hooks/useNavigateClick';
 import { createRandomNickName } from '../../utils/createRandomNickName';
 import { createChattingRoom } from '../../services/sketchRoomService';
@@ -76,6 +77,7 @@ const Landing = () => {
         </div>
         {isSearching && <SearchingRoom />}
       </div>
+      <PatchNote />
     </div>
   );
 };
