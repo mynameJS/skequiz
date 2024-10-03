@@ -106,8 +106,10 @@ const useGameStart = ({
             updateIsGuideTurn(false);
             // nowDrawing 단계 돌입
             updatePlayingStep('nowDrawing');
-            // 캔버스 초기화
-            updateClearCanvasTrigger();
+            // 캔버스 초기화 (방장만 호출하도록)
+            if (isRoomOwner) {
+              updateClearCanvasTrigger();
+            }
             return;
           }
         }

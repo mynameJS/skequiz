@@ -54,7 +54,7 @@ const SketchRoom = () => {
     showTotalResult: false,
   });
   const [drawMode, setDrawMode] = useState<'lineDraw' | 'fill'>('lineDraw');
-
+  console.log(clearCanvasTrigger);
   const currentRoomId = userStore(state => state.roomId) ?? '';
   const currentUserId = userStore(state => state.id);
   const currentUserNickName = userStore(state => state.nickName);
@@ -203,7 +203,7 @@ const SketchRoom = () => {
                 drawMode={drawMode}
                 setDrawMode={setDrawMode}
               />
-              {isPlaying && isGuideTurn && (
+              {isGuideTurn && (
                 <GuideBoard
                   participantList={participantList}
                   currentSuggestedWord={currentSuggestedWord}
