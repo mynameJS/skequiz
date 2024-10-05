@@ -15,13 +15,7 @@ export interface PlayGameState {
   drawLimitTime: number;
   isPlaying: boolean;
   isPublic: boolean;
-}
-
-export interface PlayingStepState {
-  selectWord: boolean;
-  nowDrawing: boolean;
-  showResult: boolean;
-  showTotalResult: boolean;
+  playingStep: string;
 }
 
 export interface RoomData {
