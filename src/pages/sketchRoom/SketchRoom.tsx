@@ -49,12 +49,6 @@ const SketchRoom = () => {
   const [remainingTime, setRemainingTime] = useState<number>(drawLimitTime);
   const [isCustomGameRuleOpen, setIsCustomGameRuleOpen] = useState<boolean>(true);
   const [isGuideTurn, setIsGuideTurn] = useState<boolean>(false);
-  // const [playingStep, setPlayingStep] = useState<PlayingStepState>({
-  //   selectWord: false,
-  //   nowDrawing: false,
-  //   showResult: false,
-  //   showTotalResult: false,
-  // });
   const [drawMode, setDrawMode] = useState<'lineDraw' | 'fill'>('lineDraw');
   const currentRoomId = userStore(state => state.roomId) ?? '';
   const currentUserId = userStore(state => state.id);

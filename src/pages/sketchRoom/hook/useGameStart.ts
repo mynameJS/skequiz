@@ -82,6 +82,7 @@ const useGameStart = ({
           }
           // SelectWord GuideBoard 렌더링
           updateIsGuideTurn(true);
+
           return;
         }
 
@@ -164,7 +165,10 @@ const useGameStart = ({
 
               // private room 이라면?
               // CustomGameRule 컴포넌트 호출
-              if (!isPublic) ControlCustomGameRule(true);
+              if (!isPublic) {
+                ControlCustomGameRule(true);
+                updateIsGuideTurn(false);
+              }
             }
             return;
           }
@@ -219,7 +223,10 @@ const useGameStart = ({
 
               // private room 이라면?
               // CustomGameRule 컴포넌트 호출
-              if (!isPublic) ControlCustomGameRule(true);
+              if (!isPublic) {
+                ControlCustomGameRule(true);
+                updateIsGuideTurn(false);
+              }
             }
           }
         }
