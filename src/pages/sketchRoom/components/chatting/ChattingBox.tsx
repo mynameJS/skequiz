@@ -16,7 +16,7 @@ interface ChattingBoxProps {
   drawLimitTime: number;
   remainingTime: number;
   isAnswer: boolean;
-  nowDrawing: boolean;
+  playingStep: string;
 }
 
 const ChattingBox = ({
@@ -28,7 +28,7 @@ const ChattingBox = ({
   drawLimitTime,
   remainingTime,
   isAnswer,
-  nowDrawing,
+  playingStep,
 }: ChattingBoxProps) => {
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const [message, setMessage] = useState('');
@@ -42,7 +42,7 @@ const ChattingBox = ({
     e.preventDefault();
 
     // 제시어가 빈문자열이 아니라 업데이트되었을때 && 정답을 맞추지 않은 상태일때 && nowDrawing 단계일때
-    if (currentSuggestedWord && !isAnswer && nowDrawing) {
+    if (currentSuggestedWord && !isAnswer && playingStep === 'nowDrawing') {
       const checkAnswer = message.trim() === currentSuggestedWord;
 
       // nowDrawing 단계일 때만

@@ -11,7 +11,7 @@ interface GameTableProps {
   remainingTime: number;
   onUpdateRemainingTime: (second: number) => void;
   isMyTurn: boolean;
-  isSelectWordTime: boolean;
+  playingStep: string;
 }
 
 const GameTable = ({
@@ -23,7 +23,7 @@ const GameTable = ({
   remainingTime,
   onUpdateRemainingTime,
   isMyTurn,
-  isSelectWordTime,
+  playingStep,
 }: GameTableProps) => {
   const [displayedWord, setDisplayedWord] = useState<string>('?');
 
@@ -31,7 +31,7 @@ const GameTable = ({
     if (!drawStartTime || drawStartTime.seconds === 0) return; // drawStartTime이 유효하지 않으면 실행하지 않음
 
     // selectWord 단계일때는 시간 drawLimitTime 으로고정
-    if (isSelectWordTime) {
+    if (playingStep === 'selectWord') {
       onUpdateRemainingTime(drawLimitTime);
       return;
     }
@@ -52,7 +52,7 @@ const GameTable = ({
     }, 1000);
 
     return () => clearInterval(interval); // 컴포넌트 언마운트 또는 drawStartTime 변경 시 타이머 정리
-  }, [drawStartTime, drawLimitTime, onUpdateRemainingTime, isSelectWordTime]);
+  }, [drawStartTime, drawLimitTime, onUpdateRemainingTime, playingStep]);
 
   useEffect(() => {
     // 제시어 표시 로직

@@ -24,6 +24,7 @@ const createChattingRoom = async (roomId: string, isPublic: boolean) => {
       [`room/${roomId}/drawLimitTime`]: defaultDrawTimeLimit,
       [`room/${roomId}/isPlaying`]: false,
       [`room/${roomId}/isPublic`]: isPublic,
+      [`room/${roomId}/playingStep`]: 'waiting',
     };
     await update(ref(realTimeDB), updates);
   } catch (error) {
@@ -163,7 +164,8 @@ const updateSuggestedWord = async (roomId: string, selectedSuggestedWord: string
 };
 
 // 현재 출제자 및 라운드 업데이트
-const updatePlayOrder = async (roomId: string) => {
+const updatePlayOrder = async (roomId: string, isRoomOwner: boolean) => {
+  let isNextRound = true;
   const dbRef = ref(getDatabase());
   try {
     const currentParticipantsRef = await get(child(dbRef, `room/${roomId}/participants`));
@@ -184,39 +186,48 @@ const updatePlayOrder = async (roomId: string) => {
       const currentDrawerIndex = currentDrawerIndexRef.val();
       const currentRound = currentRoundRef.val();
       const wholeRound = wholeRoundRef.val();
-      let result = false;
 
       // 현재 라운드의 마지막 플레이어라면 다음 라운드로 넘어감
       if (currentDrawerIndex === currentParticipants.length - 1) {
         // 잔여 라운드가 남아 있다면
         if (currentRound < wholeRound) {
-          updates[`/room/${roomId}/currentRound`] = currentRound + 1; // 다음 라운드로 넘어감
-          updates[`/room/${roomId}/currentDrawerIndex`] = 0; // 플레이 순서 초기화
+          // roomOwner 만 update 로직 실행
+          if (isRoomOwner) {
+            updates[`/room/${roomId}/currentRound`] = currentRound + 1; // 다음 라운드로 넘어감
+            updates[`/room/${roomId}/currentDrawerIndex`] = 0; // 플레이 순서 초기화
 
-          // 참가자 스코어 및 정답체크 및 제시어 초기화
-          await initParticipantsScore(roomId);
-          await updateSuggestedWord(roomId, '');
+            // 참가자 스코어 및 정답체크 및 제시어 초기화
+            await initParticipantsScore(roomId);
+            await updateSuggestedWord(roomId, '');
+          }
+
           // 잔여 라운드가 없다면 라운드 및 플레이순서 초기화
         } else {
-          updates[`/room/${roomId}/currentRound`] = 1; // 라운드 초기화
-          updates[`/room/${roomId}/currentDrawerIndex`] = 0; // 플레이 순서 초기화
+          if (isRoomOwner) {
+            updates[`/room/${roomId}/currentRound`] = 1; // 라운드 초기화
+            updates[`/room/${roomId}/currentDrawerIndex`] = 0; // 플레이 순서 초기화
 
-          // 참가자 스코어 및 정답체크 및 제시어 초기화
-          await initParticipantsScore(roomId);
-          await updateSuggestedWord(roomId, '');
-          // 잔여 라운드가 없다면 true 반환
-          result = true;
+            // 참가자 스코어 및 정답체크 및 제시어 초기화
+            await initParticipantsScore(roomId);
+            await updateSuggestedWord(roomId, '');
+          }
+
+          isNextRound = false;
         }
       } else {
-        updates[`/room/${roomId}/currentDrawerIndex`] = currentDrawerIndex + 1; // 다음 플레이어로 넘어감
+        if (isRoomOwner) {
+          updates[`/room/${roomId}/currentDrawerIndex`] = currentDrawerIndex + 1; // 다음 플레이어로 넘어감
 
-        // 참가자 스코어 및 정답체크 및 제시어 초기화
-        await updateSuggestedWord(roomId, '');
-        await initParticipantsScore(roomId);
+          // 참가자 스코어 및 정답체크 및 제시어 초기화
+          await updateSuggestedWord(roomId, '');
+          await initParticipantsScore(roomId);
+        }
+      }
+      if (isRoomOwner) {
+        await update(ref(realTimeDB), updates);
       }
 
-      await update(ref(realTimeDB), updates);
-      return result;
+      return isNextRound;
     } else {
       console.log('No data available');
     }
@@ -396,6 +407,27 @@ const updateGameRoomOptions = async (roomId: string, selectedOptions: GameRules)
   }
 };
 
+const updatePlayingStep = async (roomId: string, stepType: string) => {
+  const dbRef = ref(getDatabase());
+  try {
+    const prevPlayingStepRef = await get(child(dbRef, `room/${roomId}/playingStep`));
+    if (prevPlayingStepRef.exists()) {
+      const newPlayingStepState = stepType;
+      const updates: { [key: string]: string } = {};
+      updates[`/room/${roomId}/playingStep/`] = newPlayingStepState;
+      await update(ref(realTimeDB), updates);
+    } else {
+      console.log('No data available');
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error adding document: ', error.message);
+    } else {
+      console.error('Unexpected error', error);
+    }
+  }
+};
+
 // 게임 정보 실시간 구독
 const getPlayGameState = (roomId: string, onUpdateState: (gameState: PlayGameState) => void) => {
   const playGameStateDataRef = ref(realTimeDB, `room/${roomId}`);
@@ -410,6 +442,7 @@ const getPlayGameState = (roomId: string, onUpdateState: (gameState: PlayGameSta
       drawLimitTime,
       isPlaying,
       isPublic,
+      playingStep,
     } = snapshot.val();
     const newPlayGameState = {
       playerLimit,
@@ -421,6 +454,7 @@ const getPlayGameState = (roomId: string, onUpdateState: (gameState: PlayGameSta
       drawLimitTime,
       isPlaying,
       isPublic,
+      playingStep,
     };
     onUpdateState(newPlayGameState);
   });
@@ -443,4 +477,5 @@ export {
   togglePlayingState,
   deletePlayRoom,
   updateGameRoomOptions,
+  updatePlayingStep,
 };

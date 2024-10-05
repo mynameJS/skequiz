@@ -5,7 +5,7 @@ import useGameState from './hook/useGameState';
 import useGameStart from './hook/useGameStart';
 import { userStore } from '../../store/userStore';
 import { UserDataType } from '../../types/user/interface';
-import { PlayGameState, PlayingStepState } from '../../types/gameState/interface';
+import { PlayGameState } from '../../types/gameState/interface';
 import { DEFAULT_GAME_RULE_OPTIONS } from '../../constant/gameRuleOptions';
 import palette from '../../assets/image/palette.png';
 import Drawing from './components/drawing/Drawing';
@@ -30,6 +30,7 @@ const SketchRoom = () => {
     drawLimitTime: defaultDrawTimeLimit,
     isPlaying: false,
     isPublic: true,
+    playingStep: 'waiting',
   });
   const {
     playerLimit,
@@ -41,20 +42,20 @@ const SketchRoom = () => {
     drawLimitTime,
     isPlaying,
     isPublic,
+    playingStep,
   } = playGameState;
 
   const [clearCanvasTrigger, setClearCanvasTrigger] = useState<boolean>(false);
   const [remainingTime, setRemainingTime] = useState<number>(drawLimitTime);
   const [isCustomGameRuleOpen, setIsCustomGameRuleOpen] = useState<boolean>(true);
   const [isGuideTurn, setIsGuideTurn] = useState<boolean>(false);
-  const [playingStep, setPlayingStep] = useState<PlayingStepState>({
-    selectWord: false,
-    nowDrawing: false,
-    showResult: false,
-    showTotalResult: false,
-  });
+  // const [playingStep, setPlayingStep] = useState<PlayingStepState>({
+  //   selectWord: false,
+  //   nowDrawing: false,
+  //   showResult: false,
+  //   showTotalResult: false,
+  // });
   const [drawMode, setDrawMode] = useState<'lineDraw' | 'fill'>('lineDraw');
-  console.log(clearCanvasTrigger);
   const currentRoomId = userStore(state => state.roomId) ?? '';
   const currentUserId = userStore(state => state.id);
   const currentUserNickName = userStore(state => state.nickName);
@@ -68,8 +69,6 @@ const SketchRoom = () => {
     participantList.length > 0
       ? participantList.filter(userData => userData.isAnswer).length === participantList.length - 1
       : false;
-  const isAllStepsFalse =
-    !playingStep.selectWord && !playingStep.nowDrawing && !playingStep.showResult && !playingStep.showTotalResult;
   const { nickName: currentDrawerNickName, id: currentDrawerId } = participantList[currentDrawerIndex] || {};
   const cursorClass = isMyTurn ? (drawMode === 'lineDraw' ? styles.lineDraw : styles.fill) : styles.default;
 
@@ -79,15 +78,6 @@ const SketchRoom = () => {
 
   const updateRemainingTime = (second: number) => {
     setRemainingTime(second);
-  };
-
-  const updatePlayingStep = (stepName: keyof PlayingStepState, reset: boolean = false) => {
-    setPlayingStep({
-      selectWord: reset ? false : stepName === 'selectWord',
-      nowDrawing: reset ? false : stepName === 'nowDrawing',
-      showResult: reset ? false : stepName === 'showResult',
-      showTotalResult: reset ? false : stepName === 'showTotalResult',
-    });
   };
 
   const updateIsGuideTurn = (state: boolean) => {
@@ -122,14 +112,12 @@ const SketchRoom = () => {
 
   useGameStart({
     participantList,
-    updatePlayingStep,
     updateClearCanvasTrigger,
     updateIsGuideTurn,
     playingStep,
     currentRoomId,
     isRoomOwner,
     isAllPass,
-    isAllStepsFalse,
     isPlaying: playGameState.isPlaying,
     currentSuggestedWord: playGameState.currentSuggestedWord,
     remainingTime,
@@ -171,7 +159,7 @@ const SketchRoom = () => {
               remainingTime={remainingTime}
               onUpdateRemainingTime={updateRemainingTime}
               isMyTurn={isMyTurn}
-              isSelectWordTime={playingStep.selectWord}
+              playingStep={playingStep}
             />
           </div>
           <div className={styles.playArea}>
@@ -210,7 +198,6 @@ const SketchRoom = () => {
                   currentDrawerNickName={currentDrawerNickName}
                   playingStep={playingStep}
                   isMyTurn={isMyTurn}
-                  isAllStepsFalse={isAllStepsFalse}
                   isPublic={isPublic}
                 />
               )}
@@ -236,7 +223,7 @@ const SketchRoom = () => {
               drawLimitTime={drawLimitTime}
               remainingTime={remainingTime}
               isAnswer={isAnswer}
-              nowDrawing={playingStep.nowDrawing}
+              playingStep={playingStep}
             />
           </div>
           {!isPlaying && !isPublic && (
