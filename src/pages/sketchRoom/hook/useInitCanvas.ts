@@ -21,7 +21,7 @@ const useInitCanvas = (
         setContext(ctx);
       }
     }
-  }, [canvasRef, options, setContext]);
+  }, [canvasRef, options]);
 };
 
 export default useInitCanvas;

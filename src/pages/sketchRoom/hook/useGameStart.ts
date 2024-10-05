@@ -1,19 +1,21 @@
 import { useEffect } from 'react';
-import { togglePlayingState, updatePlayOrder, initParticipantsScore } from '../../../services/sketchRoomService';
+import {
+  togglePlayingState,
+  updatePlayOrder,
+  initParticipantsScore,
+  updatePlayingStep,
+} from '../../../services/sketchRoomService';
 import { UserDataType } from '../../../types/user/interface';
-import { PlayingStepState } from '../../../types/gameState/interface';
 import { useDrawStore } from '../../../store/drawStore';
 
 interface UseGameStartParams {
   participantList: UserDataType[];
-  updatePlayingStep: (stepName: keyof PlayingStepState, reset?: boolean) => void;
   updateClearCanvasTrigger: () => void;
   updateIsGuideTurn: (state: boolean) => void;
-  playingStep: PlayingStepState;
+  playingStep: string;
   currentRoomId: string;
   isRoomOwner: boolean;
   isAllPass: boolean;
-  isAllStepsFalse: boolean;
   isPlaying: boolean;
   currentSuggestedWord: string;
   remainingTime: number;
@@ -26,14 +28,12 @@ interface UseGameStartParams {
 
 const useGameStart = ({
   participantList,
-  updatePlayingStep,
   updateIsGuideTurn,
   playingStep,
   updateClearCanvasTrigger,
   currentRoomId,
   isRoomOwner,
   isAllPass,
-  isAllStepsFalse,
   isPlaying,
   currentSuggestedWord,
   remainingTime,
@@ -74,24 +74,29 @@ const useGameStart = ({
         }
 
         // 모든 스텝이 초기화 상태라면
-        if (isAllStepsFalse) {
+        if (playingStep === 'waiting') {
           // SelectWord 단계 돌입
-          updatePlayingStep('selectWord');
+          // 방장만 호출
+          if (isRoomOwner) {
+            await updatePlayingStep(currentRoomId, 'selectWord');
+          }
           // SelectWord GuideBoard 렌더링
           updateIsGuideTurn(true);
+
           return;
         }
 
         // SelectWord 단계
-        if (playingStep.selectWord) {
+        if (playingStep === 'selectWord') {
           // 참가자가 방을 떠나 게임이 불가능한 경우 (1인)
           if (participantList.length < 2) {
             // 게임 상태 초기화
+            // 혼자 있기 때문에 if 로직 안넣어도됨
             await togglePlayingState(currentRoomId);
             // 스코어 초기화
             await initParticipantsScore(currentRoomId, true);
             // 단계 초기화
-            updatePlayingStep('selectWord', true);
+            await updatePlayingStep(currentRoomId, 'waiting');
 
             // private Room 이라면
             if (!isPublic) {
@@ -105,15 +110,18 @@ const useGameStart = ({
             // GuideBoard 언마운트
             updateIsGuideTurn(false);
             // nowDrawing 단계 돌입
-            updatePlayingStep('nowDrawing');
-            // 캔버스 초기화
-            updateClearCanvasTrigger();
+            // 방장만 호출
+            if (isRoomOwner) {
+              await updatePlayingStep(currentRoomId, 'nowDrawing');
+              // 캔버스 초기화
+              updateClearCanvasTrigger();
+            }
             return;
           }
         }
 
         // nowDrawing 단계
-        if (playingStep.nowDrawing) {
+        if (playingStep === 'nowDrawing') {
           // 출제자가 nowDrawing 단계에서 방을 떠날 경우 대비하여
           // 현재 참여자 리스트에 전역상태로 저장해 놓은 출제자 id가 포함되어 있는지 확인
           const isCurrentDrawerStillInGame = participantList.some(user => user.id === tempPrevDrawerId);
@@ -122,12 +130,21 @@ const useGameStart = ({
           if (!isCurrentDrawerStillInGame) {
             // 바로 다음 순서인 플레이어에게 출제권 넘김
             // 혹은 마지막 게임이었다면 게임 종료
-            const isGameEnd = await updatePlayOrder(currentRoomId);
+            const isNextRound = await updatePlayOrder(currentRoomId, isRoomOwner);
 
-            // 잔여 라운드가 없다면
-            if (isGameEnd) {
-              // showTotalResult 단계 돌입
-              updatePlayingStep('showTotalResult');
+            // 잔여 라운드가 있다면
+            if (isNextRound) {
+              // 초기단계로 돌아감(방장만)
+              if (isRoomOwner) {
+                await updatePlayingStep(currentRoomId, 'waiting');
+                return;
+              }
+            } else {
+              // 잔여 라운드가 없다면
+              // showTotalResult 단계 돌입(방장만 호출)
+              if (isRoomOwner) {
+                await updatePlayingStep(currentRoomId, 'showTotalResult');
+              }
               // showTotalResult GuideBoard 렌더링
               updateIsGuideTurn(true);
 
@@ -136,29 +153,32 @@ const useGameStart = ({
 
               // showTotalResult GuideBoard 언마운트
               updateIsGuideTurn(false);
-              // 단계 초기화
-              updatePlayingStep('showTotalResult', true);
-              // 전체 스코어 및 답변여부 초기화
-              await initParticipantsScore(currentRoomId, true);
-              // 게임 상태 false
-              await togglePlayingState(currentRoomId);
+
+              // 단계 초기화 (방장만 호출)
+              if (isRoomOwner) {
+                await updatePlayingStep(currentRoomId, 'waiting');
+                // 전체 스코어 및 답변여부 초기화
+                await initParticipantsScore(currentRoomId, true);
+                // 게임 상태 false
+                await togglePlayingState(currentRoomId);
+              }
 
               // private room 이라면?
               // CustomGameRule 컴포넌트 호출
-              if (!isPublic) ControlCustomGameRule(true);
-
-              // 잔여 라운드가 남아 있다면
-            } else {
-              // 단계 초기화 후 상단 코드로 돌아가서 selectWord 단계 돌입
-              updatePlayingStep('selectWord', true);
+              if (!isPublic) {
+                ControlCustomGameRule(true);
+                updateIsGuideTurn(false);
+              }
             }
             return;
           }
 
           // 제한시간이 다 됬거나, 모든 참여자가 정답을 맞췄을 경우
           if (remainingTime === 0 || isAllPass) {
-            // showResult 단계 돌입
-            updatePlayingStep('showResult');
+            // showResult 단계 돌입(방장만 호출)
+            if (isRoomOwner) {
+              await updatePlayingStep(currentRoomId, 'showResult');
+            }
             // showResult GuideBoard 렌더링
             updateIsGuideTurn(true);
 
@@ -168,13 +188,21 @@ const useGameStart = ({
             // showResult GuideBoard 언마운트
             updateIsGuideTurn(false);
 
-            // 출제자 교체 및 라운드 설정
-            // 다음 라운드가 없다면 true, 잔여 라운드가 남아 있다면 false 반환
-            const isGameEnd = await updatePlayOrder(currentRoomId);
-            // 잔여 라운드가 없다면
-            if (isGameEnd) {
-              // showTotalResult 단계 돌입
-              updatePlayingStep('showTotalResult');
+            const isNextRound = await updatePlayOrder(currentRoomId, isRoomOwner);
+
+            // 잔여 라운드가 있다면
+            if (isNextRound) {
+              // 초기단계로 돌아감(방장만)
+              if (isRoomOwner) {
+                await updatePlayingStep(currentRoomId, 'waiting');
+                return;
+              }
+            } else {
+              // 잔여 라운드가 없다면
+              // showTotalResult 단계 돌입(방장만 호출)
+              if (isRoomOwner) {
+                await updatePlayingStep(currentRoomId, 'showTotalResult');
+              }
               // showTotalResult GuideBoard 렌더링
               updateIsGuideTurn(true);
 
@@ -183,23 +211,22 @@ const useGameStart = ({
 
               // showTotalResult GuideBoard 언마운트
               updateIsGuideTurn(false);
-              // 단계 초기화
-              updatePlayingStep('showTotalResult', true);
-              // 전체 스코어 및 답변여부 초기화
-              await initParticipantsScore(currentRoomId, true);
-              // 게임 상태 false
-              await togglePlayingState(currentRoomId);
 
-              await delay(2000);
+              // 단계 초기화 (방장만 호출)
+              if (isRoomOwner) {
+                await updatePlayingStep(currentRoomId, 'waiting');
+                // 전체 스코어 및 답변여부 초기화
+                await initParticipantsScore(currentRoomId, true);
+                // 게임 상태 false
+                await togglePlayingState(currentRoomId);
+              }
 
               // private room 이라면?
               // CustomGameRule 컴포넌트 호출
-              if (!isPublic) ControlCustomGameRule(true);
-
-              // 잔여 라운드가 남아 있다면
-            } else {
-              // 단계 초기화 후 상단 코드로 돌아가서 selectWord 단계 돌입
-              updatePlayingStep('selectWord', true);
+              if (!isPublic) {
+                ControlCustomGameRule(true);
+                updateIsGuideTurn(false);
+              }
             }
           }
         }
@@ -213,9 +240,7 @@ const useGameStart = ({
     remainingTime,
     currentSuggestedWord,
     isRoomOwner,
-    playingStep.nowDrawing,
-    playingStep.selectWord,
-    isAllStepsFalse,
+    playingStep,
     currentRound,
     currentDrawerId,
     currentRoomId,

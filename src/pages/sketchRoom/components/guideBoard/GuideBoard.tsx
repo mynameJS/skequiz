@@ -6,16 +6,14 @@ import goldMedal from '../../../../assets/image/medal_gold.png';
 import silverMedal from '../../../../assets/image/medal_silver.png';
 import bronzeMedal from '../../../../assets/image/medal_bronze.png';
 import { UserDataType } from '../../../../types/user/interface';
-import { PlayingStepState } from '../../../../types/gameState/interface';
 import styles from './GuideBoard.module.scss';
 
 interface GuideBoardProps {
   participantList: UserDataType[];
   currentSuggestedWord: string;
   currentDrawerNickName: string;
-  playingStep: PlayingStepState;
+  playingStep: string;
   isMyTurn: boolean;
-  isAllStepsFalse: boolean;
   isPublic: boolean;
 }
 
@@ -34,21 +32,20 @@ const GuideBoard = ({
   currentDrawerNickName,
   isMyTurn,
   playingStep,
-  isAllStepsFalse,
   isPublic,
 }: GuideBoardProps) => {
   return (
     <div className={styles.container}>
-      {isPublic && isAllStepsFalse && <WaitingOtherPlayers />}
+      {isPublic && playingStep === 'waiting' && <WaitingOtherPlayers />}
 
-      {playingStep.selectWord &&
+      {playingStep === 'selectWord' &&
         (isMyTurn ? <SelectWord /> : <WaitingSelectWord currentDrawerNickName={currentDrawerNickName} />)}
 
-      {playingStep.showResult && (
+      {playingStep === 'showResult' && (
         <GameResult participantList={participantList} currentSuggestedWord={currentSuggestedWord} />
       )}
 
-      {playingStep.showTotalResult && <TotalGameResult participantList={participantList} />}
+      {playingStep === 'showTotalResult' && <TotalGameResult participantList={participantList} />}
     </div>
   );
 };
