@@ -60,3 +60,5 @@ io.on('connection', socket => {
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+// ssl 인증서 갱신 매달 1일 새벽 2시
